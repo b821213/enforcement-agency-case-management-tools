@@ -36,18 +36,20 @@ if __name__ == '__main__':
 	for uid in uids:
 		cases, summary = get_case_stats(session, uid=uid, summary=True)
 		n_cases = len(set([case['MAIN_EXEC_NO'] for case in cases]))
-		money = (summary['PAY_AMT_TOTAL'] -
-			summary['RECEIVE_AMT_TOTAL'] - summary['RETURN_AMT_TOTAL'] -
-			summary['RETURN_AMT_NO_TOTAL'] - summary['EVI_AMT_TOTAL'] -
-			summary['PAY_AMT_RETURN'])
+		money = (summary['PAY_AMT_TOTAL']
+			- summary['RECEIVE_AMT_TOTAL']
+			- summary['RETURN_AMT_TOTAL']
+			- summary['RETURN_AMT_NO_TOTAL']
+			- summary['EVI_AMT_TOTAL']
+			- summary['PAY_AMT_RETURN_TOTAL'])
 		if (n_cases_lb <= n_cases <= n_cases_ub and
 			money_lb <= money <= money_ub):
 			cases_by_uid[uid] = cases
-			for_sorting.append((uid, n_cases, n_money))
+			for_sorting.append((uid, n_cases, money))
 	results = sorted(for_sorting, key=lambda x: x[target], reverse=True)
 	with open(sys.argv[2], 'w') as f:
-		for uid, n_cases, n_money in results:
+		for uid, n_cases, money in results:
 			cases = cases_by_uid[uid]
 			print ('%s (%s) 未結案件數 %d 尚欠金額 %d' %
-				(cases[-1]['DUTY_NAME'], uid, n_cases, n_money))
+				(cases[-1]['DUTY_NAME'], uid, n_cases, money), f_out=f)
 			print_for_merge(ranged_case_list(cases), f_out=f)

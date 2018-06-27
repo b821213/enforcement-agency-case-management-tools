@@ -60,7 +60,7 @@ def get_case_stats(
 		exec_n2 = exec_n1
 	if exec_n1 is not None and exec_n2 - exec_n1 >= 2000:
 		if summary is True:
-			all_cases, stats = get_case_stats(
+			all_cases, all_stats = get_case_stats(
 				session, exec_y, exec_t, exec_n1, exec_n2 - 2000,
 				uid, dept, noendbox, YNK, summary)
 		else:
@@ -86,12 +86,16 @@ def get_case_stats(
 		'model[EXEC_NO_TEXT]', 'model[DIST_DATE_S]', 'model[DIST_DATE_E]',
 		'model[END_DATE_S]', 'model[END_DATE_E]', 'model[PAY_DATE_S]',
 		'model[PAY_DATE_E]', 'model[STOP_DATE]', 'model[SEND_CLASS_ID_S]',
-		'model[SEND_CLASS_ID_E]', 'model[DUTY_NAME]', 'model[LEGAL_IDNO]',
-		'model[LEGAL_NAME]', 'model[MANAGE_ID]', 'model[END_SITU]',
-		'model[SENDBOX]', 'model[ALLDUTYBOX]', 'model[PRE_PAY_DATE]']
+		'model[SEND_CLASS_ID_E]', 'model[BATCH_YEAR]', 'model[BATCH_NO]',
+		'model[SEND_ORG_ID]', 'model[DUTY_NAME]', 'model[LEGAL_IDNO]',
+		'model[LEGAL_NAME]', 'model[MANAGE_ID]', 'model[CONTROL_TYPE]',
+		'model[ATTR_ID]', 'model[END_SITU]', 'model[SENDBOX]',
+		'model[ALLDUTYBOX]', 'model[PRE_PAY_DATE]',
+		'model[paginaiton][totalCount]']
 	for attr in current_useless_attrs:
 		data[attr] = ''
-	response = eval(regulized(session.post(urls.url_case_stats, data).text))
+	raw_response = session.post(urls.url_case_stats, data=data)
+	response = eval(regulized(raw_response.text))
 	partial_cases = response['gridDatas']
 	key_info = [
 		'EXEC_YEAR', 'EXEC_CASE', 'EXEC_SEQNO', 'DEPT_NO', 'DUTY_IDNO',
@@ -102,9 +106,11 @@ def get_case_stats(
 		{info: case[info] for info in key_info} for case in partial_cases]
 	all_cases += partial_cases
 	if summary is True:
-		partial_stats = response['QueryTotal_AMT']
+		partial_stats = response['QueryTotal_AMT'][0]
+		for key, value in partial_stats.items():
+			partial_stats[key] = int(value.replace(',', ''))
 		if all_stats is None:
-			all_stats = partial_cases
+			all_stats = partial_stats
 		else:
 			for key, value in partial_stats.items():
 				all_stats[key] += value
@@ -222,7 +228,7 @@ def get_old_ended_cases_stats(
 		'model[USER_NO]': '',
 		'model[paginaiton][pages][]': 1,
 		'model[paginaiton][pageNo]': 1,
-		'model[paginaiton][pageSize]': 999999,
+		'model[paginaiton][pageSize]': configs.default_page_size,
 		'model[paginaiton][totalPage]': '',
 		'model[paginaiton][totalCount]': ''
 	}
