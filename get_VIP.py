@@ -47,9 +47,9 @@ if __name__ == '__main__':
 			cases_by_uid[uid] = cases
 			for_sorting.append((uid, n_cases, money))
 	results = sorted(for_sorting, key=lambda x: x[target], reverse=True)
-	with open(sys.argv[2], 'w') as f:
+	with open(sys.argv[2], 'w', encoding='utf8') as f:
 		for uid, n_cases, money in results:
 			cases = cases_by_uid[uid]
 			print ('%s (%s) 未結案件數 %d 尚欠金額 %d' %
-				(cases[-1]['DUTY_NAME'], uid, n_cases, money), f_out=f)
+				(cases[-1]['DUTY_NAME'], uid, n_cases, money), file=f)
 			print_for_merge(ranged_case_list(cases), f_out=f)
