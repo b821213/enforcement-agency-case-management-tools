@@ -367,5 +367,16 @@ def get_topay_summary(
 	response = session.post(urls.url_topay_summary, data=data)
 	return int(eval(response.text)['gridDatas'][-1]['TOT_AMT'])
 
+def get_detainable_list(session, dept):
+	data = {
+		'model[DEPT_NO]': dept,
+		'model[paginaiton][pageNo]': 1,
+		'model[paginaiton][pageSize]': configs.default_page_size,
+		'model[paginaiton][totalPage]': '',
+		'model[paginaiton][totalCount]': ''
+	}
+	response = session.post(urls.url_detainable_list, data=data)
+	return eval(response.text)['gridDatas']
+
 if __name__ == '__main__':
 	"""Preserved for unit-test only."""
