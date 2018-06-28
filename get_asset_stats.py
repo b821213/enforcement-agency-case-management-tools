@@ -39,7 +39,7 @@ if __name__ == '__main__':
 		sys.exit(0)
 	session = login(username_default, password_default)
 	flip_flop = 0
-	output = open(sys.argv[2], 'w')
+	output = open(sys.argv[2], 'w', encoding='utf8')
 	case_list = read_input(sys.argv[1])
 	for index, (y, t, n) in enumerate(case_list):
 		print ('(%d/%d) %03d-%02d-%08d 查詢中' % 
