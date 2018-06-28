@@ -4,7 +4,7 @@ import sys
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3:
-		print ('使用說明: python [本程式名稱] [股別] [輸出檔名 (.txt)]')
+		print ('使用說明: python [本程式名稱] [股別] [輸出檔名 (.csv)]')
 		sys.exit(0)
 	session = login(username_default, password_default)
 	data = get_detainable_list(session, sys.argv[1])
