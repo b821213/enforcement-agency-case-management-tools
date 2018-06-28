@@ -91,7 +91,8 @@ def get_case_stats(
 		'model[LEGAL_NAME]', 'model[MANAGE_ID]', 'model[CONTROL_TYPE]',
 		'model[ATTR_ID]', 'model[END_SITU]', 'model[SENDBOX]',
 		'model[ALLDUTYBOX]', 'model[PRE_PAY_DATE]',
-		'model[paginaiton][totalCount]']
+		'model[paginaiton][totalCount]'
+	]
 	for attr in current_useless_attrs:
 		data[attr] = ''
 	raw_response = session.post(urls.url_case_stats, data=data)
@@ -101,7 +102,8 @@ def get_case_stats(
 		'EXEC_YEAR', 'EXEC_CASE', 'EXEC_SEQNO', 'DEPT_NO', 'DUTY_IDNO',
 		'DUTY_NAME', 'MAIN_EXEC_NO', 'END_DATE', 'FINISH_DATE', 'SEND_ORG_ID',
 		'PAY_AMT', 'RECEIVE_AMT', 'RETURN_AMT', 'RETURN_AMT_NO', 'EVI_AMT',
-		'END_SITU_NAME', 'KEY_IN_RECEIVE', 'KEY_IN_RETURN', 'RECEIVE_FLAG']
+		'END_SITU_NAME', 'KEY_IN_RECEIVE', 'KEY_IN_RETURN', 'RECEIVE_FLAG'
+	]
 	partial_cases = [
 		{info: case[info] for info in key_info} for case in partial_cases]
 	all_cases += partial_cases
@@ -124,23 +126,22 @@ def get_asset_page(
 	if login_asset(session, password) is False:
 		return []
 	data = {
-		'model[PKNO]': '',
 		'model[DUTY_IDNO_TEXTAREA]': uid,
 		'model[IMP_DATE_BEGIN]': date_begin,
 		'model[IMP_DATE_END]': date_end,
-		'model[INCLUDE_SELF_ADDED_CHECK_BOX]': '',
 		'model[IMP_RESULT]': 0,
-		'model[EXEC_YEAR]': '',
-		'model[EXEC_CASE]': '',
-		'model[EXEC_SEQNO_S]': '',
-		'model[EXEC_SEQNO_E]': '',
-		'model[PRINTTYPE]': '',
 		'model[paginaiton][pages][]': 1,
 		'model[paginaiton][pageNo]': 1,
-		'model[paginaiton][pageSize]': configs.default_page_size,
-		'model[paginaiton][totalPage]': '',
-		'model[paginaiton][totalCount]': ''
+		'model[paginaiton][pageSize]': configs.default_page_size
 	}
+	current_useless_attrs = [
+		'model[PKNO]', 'model[INCLUDE_SELF_ADDED_CHECK_BOX]',
+		'model[EXEC_YEAR]', 'model[EXEC_CASE]', 'model[EXEC_SEQNO_S]',
+		'model[EXEC_SEQNO_E]', 'model[PRINTTYPE]',
+		'model[paginaiton][totalPage]', 'model[paginaiton][totalCount]'
+	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
 	response = session.post(urls.url_asset, data=data)
 	return eval(response.content)['gridDatas']
 
@@ -151,18 +152,17 @@ def download_asset_page(
 	if login_asset(session, password) is False:
 		return False
 	data = {
-		'PKNO': '',
 		'DUTY_IDNO_TEXTAREA': uid,
 		'IMP_DATE_BEGIN': date_begin,
 		'IMP_DATE_END': date_end,
-		'INCLUDE_SELF_ADDED_CHECK_BOX': '',
-		'IMP_RESULT': 0,
-		'EXEC_YEAR': '',
-		'EXEC_CASE': '',
-		'EXEC_SEQNO_S': '',
-		'EXEC_SEQNO_E': '',
-		'PRINTTYPE': ''
+		'IMP_RESULT': 0
 	}
+	current_useless_attrs = [
+		'PKNO', 'INCLUDE_SELF_ADDED_CHECK_BOX', 'EXEC_YEAR', 'EXEC_CASE',
+		'EXEC_SEQNO_S', 'EXEC_SEQNO_E', 'PRINTTYPE'
+	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
 	response = session.post(urls.url_asset_print, data=data)
 	with open(file_path, 'wb') as f:
 		f.write(response.content)
@@ -196,42 +196,33 @@ def get_old_ended_cases_stats(
 			file=sys.stderr)
 		raise ValueError
 	data = {
-		'model[EXEC_YEAR]': '',
-		'model[EXEC_CASE]': '',
-		'model[EXEC_SEQNO]': '',
-		'model[EXEC_SEQNO_S]': '',
-		'model[EXEC_SEQNO_E]': '',
-		'model[END_FILE_NO]': '',
-		'model[EXEC_RECTYPE]': '',
 		'model[VOC_YEAR]': formatted('%03d', exec_y),
 		'model[VOC_TYPE_SNAME]': 'CY',
 		'model[VOC_SEQ_YEAR1]': formatted('%03d', ended_y),
 		'model[VOC_CASE_TYPE1]': formatted('%02d', exec_t),
 		'model[VOC_SEQ_NO_S1]': formatted('%08d', exec_n1),
 		'model[VOC_SEQ_NO_E1]': formatted('%08d', exec_n2),
-		'model[VOC_SEQ_YEAR2]': '',
-		'model[VOC_CASE_TYPE2]': '',
-		'model[VOC_SEQ_NO_S2]': '',
-		'model[VOC_SEQ_NO_E2]': '',
 		'model[VOC_TYPE]': voc_type,
-		'model[QRY_TYPE]': '',
-		'model[FILE_KIND]': '',
-		'model[DUTY_IDNO]': '',
-		'model[DUTY_NAME]': '',
 		'model[END_FILE_DATE_S]': formatted('%03d%02d%02d', in_date_s),
 		'model[END_FILE_DATE_E]': formatted('%03d%02d%02d', in_date_e),
 		'model[DEPT_NO]': dept,
-		'model[CASE_TYPE]': '',
-		'model[END_SITU]': '',
 		'model[KEEPTERM]': formatted('%03d', keepterm),
-		'model[ORDERBY]': '',
-		'model[USER_NO]': '',
 		'model[paginaiton][pages][]': 1,
 		'model[paginaiton][pageNo]': 1,
-		'model[paginaiton][pageSize]': configs.default_page_size,
-		'model[paginaiton][totalPage]': '',
-		'model[paginaiton][totalCount]': ''
+		'model[paginaiton][pageSize]': configs.default_page_size
 	}
+	current_useless_attrs = [
+		'model[EXEC_YEAR]', 'model[EXEC_CASE]', 'model[EXEC_SEQNO]',
+		'model[EXEC_SEQNO_S]', 'model[EXEC_SEQNO_E]', 'model[END_FILE_NO]',
+		'model[EXEC_RECTYPE]', 'model[VOC_SEQ_YEAR2]', 'model[VOC_CASE_TYPE2]',
+		'model[VOC_SEQ_NO_S2]', 'model[VOC_SEQ_NO_E2]', 'model[QRY_TYPE]',
+		'model[FILE_KIND]', 'model[DUTY_IDNO]', 'model[DUTY_NAME]',
+		'model[CASE_TYPE]', 'model[END_SITU]', 'model[ORDERBY]',
+		'model[USER_NO]', 'model[paginaiton][totalPage]',
+		'model[paginaiton][totalCount]'
+	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
 	response = session.post(urls.url_ended_case_stats, data=data)
 	return eval(response.content)['gridDatas']
 
@@ -241,7 +232,6 @@ def ending_cases(
 	evi_amt=None, undo=False):
 	# Stage 1: get cases attributes
 	data = {
-		'model[PKNO]': '',
 		'model[CASE_KIND]': 1,
 		'model[QTYPE]': 1,
 		'model[EXEC_YEAR_M]': formatted('%03d', exec_y),
@@ -249,39 +239,28 @@ def ending_cases(
 		'model[EXEC_SEQNO_S_M]': formatted('%08d', exec_n),
 		'model[EXEC_SEQNO_E_M]': formatted('%08d', exec_n),
 		'model[CHECK_STATUS]': 'false',
-		'model[OUT_DATE_S]': '',
-		'model[OUT_DATE_E]': '',
 		'model[MTYPE]': 1,
 		'model[ETYPE]': 1 if undo is False else 2,
-		'model[END_DATE]': '',
 		'model[DEPT_NO]': dept,
 		'model[END_DATE_SET]': '%03d%02d%02d' % today(),
-		'model[DUTY_IDNO]': '',
-		'model[EXEC_YEAR_S]': '',
-		'model[EXEC_CASE_S]': '',
-		'model[EXEC_SEQNO_S]': '',
-		'model[EXEC_SEQNO_S_E]': '',
-		'model[END_SITU_ID]': '',
 		'model[CASE_KIND_B]': 1,
 		'model[END_DATE_B]': '%03d%02d%02d' % today(),
 		'model[QTYPE_B]': 1,
-		'model[EXEC_YEAR_B_M]': '', 
-		'model[EXEC_CASE_B_M]': '',
-		'model[EXEC_SEQNO_S_B_M]': '',
-		'model[EXEC_SEQNO_E_B_M]': '',
 		'model[ETYPE_B]': 1,
-		'model[EXEC_YEAR_B_S]': '',
-		'model[EXEC_CASE_B_S]': '',
-		'model[EXEC_SEQNO_B_S]': '',
-		'model[SET_END_SITU_ID_B]': '',
-		'model[SET_END_SITU_ID_B_S]': '',
-		'model[CONTROL_TYPE]': '', 
-		'model[CLASS_ID]': '',
-		'model[ATTR_ID]': '',
-		'model[QTYPE_2]': '',
-		'model[ORDERBY]': '',
-		'model[ORDERBY_B]': ''
 	}
+	current_useless_attrs = [
+		'model[PKNO]', 'model[OUT_DATE_S]', 'model[OUT_DATE_E]',
+		'model[END_DATE]', 'model[DUTY_IDNO]', 'model[EXEC_YEAR_S]',
+		'model[EXEC_CASE_S]', 'model[EXEC_SEQNO_S]', 'model[EXEC_SEQNO_S_E]',
+		'model[END_SITU_ID]', 'model[EXEC_YEAR_B_M]', 'model[EXEC_CASE_B_M]',
+		'model[EXEC_SEQNO_S_B_M]', 'model[EXEC_SEQNO_E_B_M]',
+		'model[EXEC_YEAR_B_S]', 'model[EXEC_CASE_B_S]', 'model[EXEC_SEQNO_B_S]',
+		'model[SET_END_SITU_ID_B]', 'model[SET_END_SITU_ID_B_S]',
+		'model[CONTROL_TYPE]', 'model[CLASS_ID]', 'model[ATTR_ID]',
+		'model[QTYPE_2]', 'model[ORDERBY]', 'model[ORDERBY_B]'
+	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
 	response = session.post(urls.url_cases_attributes, data=data)
 	try:
 		attr = eval(regulized(response.text))['gridDatas'][0]
@@ -345,25 +324,28 @@ def ending_cases(
 		return True, success_msg
 
 def get_topay_summary(
-	session, exec_y=None, exec_t=None, exec_n=None, uid=None):
+	session, exec_y=None, exec_t=None, exec_n1=None, exec_n2=None, uid=None):
+	if exec_n1 is None:
+		exec_n1 = exec_n2
+	if exec_n2 is None:
+		exec_n2 = exec_n1
 	data = {
 		'model[EXEC_YEAR]': formatted('%03d', exec_y),
 		'model[EXEC_CASE]': formatted('%02d', exec_t),
-		'model[EXEC_SEQNO_S]': formatted('%08d', exec_n),
-		'model[EXEC_SEQNO_E]': formatted('%08d', exec_n),
+		'model[EXEC_SEQNO_S]': formatted('%08d', exec_n1),
+		'model[EXEC_SEQNO_E]': formatted('%08d', exec_n2),
 		'model[DUTY_IDNO]': formatted('%s', uid),
-		'model[CLASS_ID_A]': '',
-		'model[DEPT_NO]': '',
-		'model[SEND_ORG_ID_S]': '',
-		'model[SEND_ORG_ID_E]': '',
 		'model[PRE_PAY_DATE]': '%03d%02d%02d' % today(),
 		'model[SUB_TYPE]': 1,
-		'model[DATA_TYPE]': 1,
-		'model[IS_RECEIVE_FLAG]': '',
-		'model[IS_NO_ZERO]': '',
-		'model[CONTROL_TYPE]': '',
-		'model[ATTR_ID]': ''
+		'model[DATA_TYPE]': 1
 	}
+	current_useless_attrs = [
+		'model[CLASS_ID_A]', 'model[DEPT_NO]', 'model[SEND_ORG_ID_S]',
+		'model[SEND_ORG_ID_E]', 'model[IS_RECEIVE_FLAG]', 'model[IS_NO_ZERO]',
+		'model[CONTROL_TYPE]', 'model[ATTR_ID]'
+	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
 	response = session.post(urls.url_topay_summary, data=data)
 	return int(eval(response.text)['gridDatas'][-1]['TOT_AMT'])
 
@@ -372,9 +354,10 @@ def get_detainable_list(session, dept):
 		'model[DEPT_NO]': dept,
 		'model[paginaiton][pageNo]': 1,
 		'model[paginaiton][pageSize]': configs.default_page_size,
-		'model[paginaiton][totalPage]': '',
-		'model[paginaiton][totalCount]': ''
 	}
+	current_useless_attrs = [
+		'model[paginaiton][totalPage]', 'model[paginaiton][totalCount]'
+	]
 	response = session.post(urls.url_detainable_list, data=data)
 	return eval(response.text)['gridDatas']
 
