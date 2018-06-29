@@ -337,7 +337,7 @@ def get_topay_summary(
 		'model[DUTY_IDNO]': formatted('%s', uid),
 		'model[PRE_PAY_DATE]': '%03d%02d%02d' % today(),
 		'model[SUB_TYPE]': 1,
-		'model[DATA_TYPE]': 1
+		'model[DATA_TYPE]': 2
 	}
 	current_useless_attrs = [
 		'model[CLASS_ID_A]', 'model[DEPT_NO]', 'model[SEND_ORG_ID_S]',
@@ -360,6 +360,20 @@ def get_detainable_list(session, dept):
 	]
 	response = session.post(urls.url_detainable_list, data=data)
 	return eval(response.text)['gridDatas']
+
+def get_case_details(session, exec_y, exec_t, exec_n):
+	data = {
+		'model[EXEC_YEAR_Q]': formatted('%03d', exec_y),
+		'model[EXEC_CASE_Q]': formatted('%02d', exec_t),
+		'model[EXEC_SEQNO_Q]': formatted('%08d', exec_n)
+	}
+	current_useless_attrs = [
+		'model[DUTY_IDNO_Q]', 'model[DUTY_NAME_Q]'
+	]
+	response = session.post(urls.url_case_details, data=data)
+	raw = eval(response.text)['SITU_LIST']
+	key_info = ['EXEC_DATE', 'REMARK', 'EXEC_MRK']
+	return [{key: situ[key] for key in key_info} for situ in raw]
 
 if __name__ == '__main__':
 	"""Preserved for unit-test only."""
