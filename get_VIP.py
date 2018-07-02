@@ -28,8 +28,24 @@ if __name__ == '__main__':
 	for y in range(y_begin, y_end + 1):
 		for t in range(1, 5):
 			print ('正在查詢 %03d-%02d 的案件...' % (y, t))
-			data += get_case_stats(
-				session, exec_y=y, exec_t=t, exec_n1=1, exec_n2=MAXN, dept=dept)
+			counter = 3
+			success = False
+			err_type = None
+			err_args = None
+			while not success and counter > 0:
+				try:
+					data += get_case_stats(
+						session, exec_y=y, exec_t=t, exec_n1=1, exec_n2=MAXN,
+						dept=dept)
+				except Exception as e:
+					err_type = type(e)
+					err_args = e.args
+					counter -= 1
+				else:
+					success = True
+			if counter == 0:
+				print ('%r %s' % (err_type, err_args))
+				sys.exit(0)
 	uids = set([datum['DUTY_IDNO'].strip() for datum in data])
 	cases_by_uid = {}
 	for_sorting = []
