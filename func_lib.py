@@ -9,9 +9,14 @@ def read_input(file_path):
 	ret = []
 	for line in f:
 		data = line[:-1].split(',')
-		y, t, n = map(int, data[:3])
-		if len(data) == 3 or data[3] is not '':
-			ret.append((y, t, n))
+		if len(data) < 3:
+			uid = data[0]
+			if len(data) == 1 or data[1] is not '':
+				ret.append(uid)
+		else:
+			y, t, n = map(int, data[:3])
+			if len(data) == 3 or data[3] is not '':
+				ret.append((y, t, n))
 	f.close()
 	return ret
 
