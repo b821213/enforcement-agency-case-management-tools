@@ -117,6 +117,7 @@ def check_layaway(situ_list):
 if __name__ == '__main__':
 	if len(sys.argv) != 3:
 		print ('使用說明: python [本程式名稱] [輸入檔名 (.csv)] [輸出檔名 (.csv)]')
+		sys.exit(0)
 	session = login(username_default, password_default)
 	f_out = open(sys.argv[2], 'w', encoding='utf8')
 	print (','.join(['案號', '義務人', '狀態', '狀態日期']), file=f_out)
