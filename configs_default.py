@@ -10,3 +10,5 @@ adobe_reader_path = ''
 asset_date_begin = ''
 # 自動印財冊間隔時間 (單位: 秒)
 asset_wait_time = 5
+# 進行簿顯示條目數量
+n_show_situ_items = 5
