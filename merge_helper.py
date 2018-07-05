@@ -1,4 +1,4 @@
-from func_lib import login, read_input, get_case_stats
+from func_lib import login, read_input, get_case_stats, get_topay_summary
 from secret import username_default, password_default
 import sys
 
@@ -66,12 +66,14 @@ if __name__ == '__main__':
 				(index + 1, len(case_list), y, t, n))
 			data = get_case_stats(session, exec_y=y, exec_t=t, exec_n1=n)
 			uid = data[0]['DUTY_IDNO']
-			title_str = '%s-%s-%s (%s)' % (y, t, n, uid)
+			title_str = '%s-%s-%s (%s) 尚欠金額 %d' % (
+				y, t, n, uid, get_topay_summary(session, uid=uid))
 			value_str = '%s-%s-%s' % (y, t, n)
 		else:
 			uid = uid_or_seqno
 			print ('(%d/%d) %s 查詢中' % (index + 1, len(case_list), uid))
-			title_str = '(%s)' % uid
+			title_str = '(%s) 尚欠金額 %d' % (
+				uid, get_topay_summary(session, uid=uid))
 			value_str = '%s' % uid
 		prev = done.get(uid)
 		if prev is None:
