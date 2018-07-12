@@ -4,9 +4,12 @@ from secret import username_default, password_default, password_asset
 from configs import asset_date_begin
 import sys
 
-def get_duty_name_and_uid(session, exec_y, exec_t, exec_n):
+def get_duty_name_and_uid(
+	session, exec_y=None, exec_t=None, exec_n=None, uid=''):
+	# uid is returned even when uid is given as an argument for consistency.
 	data = get_case_stats(
-		session, exec_y=exec_y, exec_t=exec_t, exec_n1=exec_n, noendbox=False)
+		session, exec_y=exec_y, exec_t=exec_t, exec_n1=exec_n,
+		uid=uid, noendbox=False)
 	return data[-1]['DUTY_NAME'], data[-1]['DUTY_IDNO']
 
 def refined_asset_list(session, uid):
@@ -19,7 +22,7 @@ def refined_asset_list(session, uid):
 				1 if datum['MONEY_RATE'] == ''
 				else float(datum['MONEY_RATE']))
 		amount = (
-				0 if datum['AMT'] == '' 
+				0 if datum['AMT'] == ''
 				else int(datum['AMT'].replace(',', '')))
 		value = (datum['IMP_DATE'], int(exchange_rate * amount))
 		if key in useful_data:
@@ -41,14 +44,23 @@ if __name__ == '__main__':
 	flip_flop = 0
 	output = open(sys.argv[2], 'w', encoding='utf8')
 	case_list = read_input(sys.argv[1])
-	for index, (y, t, n) in enumerate(case_list):
-		print ('(%d/%d) %03d-%02d-%08d 查詢中' % 
-			(index + 1, len(case_list), y, t, n))
-		name, uid = get_duty_name_and_uid(session, y, t, n)
+	for index, uid_or_seqno in enumerate(case_list):
+		if type(uid_or_seqno) is tuple:
+			y, t, n = uid_or_seqno
+			print ('(%d/%d) %03d-%02d-%08d 查詢中' %
+				(index + 1, len(case_list), y, t, n))
+			name, uid = get_duty_name_and_uid(
+				session, exec_y=y, exec_t=t, exec_n=n)
+		else:
+			uid = uid_or_seqno
+			print ('(%d/%d) %s 查詢中' %
+				(index + 1, len(case_list), uid))
+			# uid is unchanged, but keep it for readability.
+			name, uid = get_duty_name_and_uid(session, uid=uid)
 		topay = get_topay_summary(session, uid=uid)
 		to_print = []
 		to_print.append(','.join([
-			'%03d-%02d-%08d' % (y, t, n),
+			'%03d-%02d-%08d' % (y, t, n) if type(uid_or_seqno) is tuple else '',
 			'%s (%s)' % (name, uid),
 			'%s' % '尚欠金額',
 			'%d' % get_topay_summary(session, uid=uid)]))
