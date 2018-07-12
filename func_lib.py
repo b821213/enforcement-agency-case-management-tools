@@ -103,18 +103,19 @@ def get_case_stats(
 	raw_response = session.post(urls.url_case_stats, data=data)
 	response = eval(regulized(raw_response.text))
 	partial_cases = response['gridDatas']
-	key_info = [
-		'EXEC_YEAR', 'EXEC_CASE', 'EXEC_SEQNO', 'MAIN_EXEC_NO', 'DEPT_NO',
-		'DUTY_IDNO', 'DUTY_NAME', 'SEND_ORG_ID', 'SEND_ORG_NAME',
-		'END_DATE', 'FINISH_DATE', 'END_SITU_NAME',
-		'PAY_AMT', 'RECEIVE_AMT', 'RETURN_AMT', 'RETURN_AMT_NO', 'EVI_AMT',
-		'KEY_IN_RECEIVE', 'KEY_IN_RETURN', 'RECEIVE_FLAG'
+	key_info_str = [
+		'MAIN_EXEC_NO', 'DEPT_NO', 'DUTY_IDNO', 'DUTY_NAME',
+		'SEND_ORG_ID', 'SEND_ORG_NAME', 'END_DATE', 'FINISH_DATE',
+		'END_SITU_NAME', 'KEY_IN_RECEIVE', 'KEY_IN_RETURN', 'RECEIVE_FLAG'
 	]
-	to_integer = (lambda s:
-		int(s.replace(',', '')) if s.replace(',', '').isdigit()
-		else s)
-	partial_cases = [
-		{info: to_integer(case[info]) for info in key_info}
+	key_info_int = [
+		'EXEC_YEAR', 'EXEC_CASE', 'EXEC_SEQNO', 'PAY_AMT', 'RECEIVE_AMT',
+		'RETURN_AMT', 'RETURN_AMT_NO', 'EVI_AMT'
+	]
+	to_integer = lambda s: s.replace(',', '').isdigit()
+	partial_cases = [{
+		**{info: case[info] for info in key_info_str},
+		**{info: to_integer(case[info]) for info in key_info_int}}
 		for case in partial_cases]
 	all_cases += partial_cases
 	if summary is True:
