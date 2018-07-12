@@ -47,6 +47,7 @@ if __name__ == '__main__':
 		sys.exit(0)
 	hi_print = None
 	li_print = None
+	topay_print = None
 	while hi_print is None:
 		response = input('是否列印健保案件? (y/n)')
 		if response == 'y' or response == 'n':
@@ -55,6 +56,10 @@ if __name__ == '__main__':
 		response = input('是否列印勞保案件? (y/n)')
 		if response == 'y' or response == 'n':
 			li_print = True if response == 'y' else False
+	while topay_print is None:
+		response = input('是否列出義務人總尚欠金額? (y/n)')
+		if response == 'y' or response == 'n':
+			topay_print = True if response == 'y' else False
 	session = login(username_default, password_default)
 	done = {}
 	f_out = open(sys.argv[2], 'w')
@@ -66,14 +71,12 @@ if __name__ == '__main__':
 				(index + 1, len(case_list), y, t, n))
 			data = get_case_stats(session, exec_y=y, exec_t=t, exec_n1=n)
 			uid = data[0]['DUTY_IDNO']
-			title_str = '%s-%s-%s (%s) 尚欠金額 %d' % (
-				y, t, n, uid, get_topay_summary(session, uid=uid))
+			title_str = '%s-%s-%s (%s)' % (y, t, n, uid)
 			value_str = '%s-%s-%s' % (y, t, n)
 		else:
 			uid = uid_or_seqno
 			print ('(%d/%d) %s 查詢中' % (index + 1, len(case_list), uid))
-			title_str = '(%s) 尚欠金額 %d' % (
-				uid, get_topay_summary(session, uid=uid))
+			title_str = '(%s)' % (uid)
 			value_str = '%s' % uid
 		prev = done.get(uid)
 		if prev is None:
@@ -82,6 +85,10 @@ if __name__ == '__main__':
 				data = [datum for datum in data if not is_hi_case(datum)]
 			if li_print is False:
 				data = [datum for datum in data if not is_li_case(datum)]
+			n_cases = len(set([datum['MAIN_EXEC_NO'] for datum in data]))
+			title_str += ' 列出件數 %d' % n_cases
+			if topay_print is True:
+				title_str += ' 尚欠金額 %d' % get_topay_summary(session, uid=uid)
 			print (title_str, file=f_out)
 			print_for_merge(ranged_case_list(data), f_out=f_out)
 			done[uid] = value_str
