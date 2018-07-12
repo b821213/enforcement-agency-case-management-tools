@@ -104,13 +104,18 @@ def get_case_stats(
 	response = eval(regulized(raw_response.text))
 	partial_cases = response['gridDatas']
 	key_info = [
-		'EXEC_YEAR', 'EXEC_CASE', 'EXEC_SEQNO', 'DEPT_NO', 'DUTY_IDNO',
-		'DUTY_NAME', 'MAIN_EXEC_NO', 'END_DATE', 'FINISH_DATE', 'SEND_ORG_ID',
+		'EXEC_YEAR', 'EXEC_CASE', 'EXEC_SEQNO', 'MAIN_EXEC_NO', 'DEPT_NO',
+		'DUTY_IDNO', 'DUTY_NAME', 'SEND_ORG_ID', 'SEND_ORG_NAME',
+		'END_DATE', 'FINISH_DATE', 'END_SITU_NAME',
 		'PAY_AMT', 'RECEIVE_AMT', 'RETURN_AMT', 'RETURN_AMT_NO', 'EVI_AMT',
-		'END_SITU_NAME', 'KEY_IN_RECEIVE', 'KEY_IN_RETURN', 'RECEIVE_FLAG'
+		'KEY_IN_RECEIVE', 'KEY_IN_RETURN', 'RECEIVE_FLAG'
 	]
+	to_integer = (lambda s:
+		int(s.replace(',', '')) if s.replace(',', '').isdigit()
+		else s)
 	partial_cases = [
-		{info: case[info] for info in key_info} for case in partial_cases]
+		{info: to_integer(case[info]) for info in key_info}
+		for case in partial_cases]
 	all_cases += partial_cases
 	if summary is True:
 		partial_stats = response['QueryTotal_AMT'][0]
@@ -281,6 +286,7 @@ def ending_cases(
 	if undo is False:
 		if end_situ is None and attr['END_SITU_ID'] == '':
 			return False, '請提供終結情形'
+		situ_with_evi = [4, 5, 12, 15, 90, 91, 94, 96]
 		inherited_key_words = [
 			'PKNO', 'EXEC_YEAR', 'EXEC_CASE', 'EXEC_SEQNO',
 			'END_SITU_ID_SP', 'END_SITU_ID_BASE', 'EXEC_NO',
@@ -290,10 +296,14 @@ def ending_cases(
 		customized_key_words = [
 			'END_SITU_ID', 'DEPT_NO', 'END_DATE_SET', 'EVI_AMT',
 			'END_SITU_ID_BOOL', 'QTYPE_2', 'ORDERBY', 'ORDERBY_B']
+		if end_situ is None:
+			end_situ = int(attr['END_SITU_ID'])
+		if evi_amt is None:
+			evi_amt = (
+				max(int(attr['UNDO_AMT']), 1) if end_situ in situ_with_evi
+				else 0)
 		customized_key_values = [
-			end_situ if end_situ is not None else int(attr['END_SITU_ID']),
-			dept, (end_y, end_m, end_d),
-			evi_amt if evi_amt is not None else int(attr['UNDO_AMT']),
+			end_situ, dept, (end_y, end_m, end_d), evi_amt,
 			'false', None, None, None]
 		customized_key_formats = [
 			"%02d", "%s", "%03d%02d%02d", "%d", "%s", '', '', '']
