@@ -112,7 +112,7 @@ def get_case_stats(
 		'EXEC_YEAR', 'EXEC_CASE', 'EXEC_SEQNO', 'PAY_AMT', 'RECEIVE_AMT',
 		'RETURN_AMT', 'RETURN_AMT_NO', 'EVI_AMT'
 	]
-	to_integer = lambda s: s.replace(',', '').isdigit()
+	to_integer = lambda s: int(s.replace(',', ''))
 	partial_cases = [{
 		**{info: case[info] for info in key_info_str},
 		**{info: to_integer(case[info]) for info in key_info_int}}
