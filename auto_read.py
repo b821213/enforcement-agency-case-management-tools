@@ -125,8 +125,8 @@ if __name__ == '__main__':
 	for y, t, n in read_input(sys.argv[1]):
 		stats = get_case_stats(
 			session, exec_y=y, exec_t=t, exec_n1=n, noendbox=False)[0]
-		situ_list = refined_situ_list(
-			get_case_details(session, exec_y=y, exec_t=t, exec_n=n))
+		details = get_case_details(session, exec_y=y, exec_t=t, exec_n=n)
+		situ_list = refined_situ_list(details['SITU_LIST'])
 		layaway = check_layaway(situ_list)
 		date_sep = lambda s: tuple(map(int, [s[:3], s[3: 5], s[5:]]))
 		# check whether it is ended
@@ -143,8 +143,13 @@ if __name__ == '__main__':
 		else:
 			status = ''
 			status_date = None
+		duty_name_str = stats['DUTY_NAME']
+		if details['IS_WHOLLY_OWNED'] is True:
+			duty_name_str = '(獨資) ' + duty_name_str
+		if details['IS_PARTNERSHIP'] is True:
+			duty_name_str = '(合夥) ' + duty_name_str
 		print (','.join([
-			formatted('%03d-%02d-%08d', (y, t, n)), stats['DUTY_NAME'],
+			formatted('%03d-%02d-%08d', (y, t, n)), duty_name_str,
 			status, formatted('%03d/%02d/%02d', status_date)
 			]), file=f_out)
 		for situ in situ_list[: n_show_situ_items]:

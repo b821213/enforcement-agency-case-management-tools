@@ -136,8 +136,12 @@ def get_asset_page(
 	date_begin=configs.asset_date_begin, date_end='%03d%02d%02d' % today()):
 	if login_asset(session, password) is False:
 		return []
+	if type(uid) is list:
+		uid_str = '\n'.join(uid)
+	else:
+		uid_str = uid
 	data = {
-		'model[DUTY_IDNO_TEXTAREA]': uid,
+		'model[DUTY_IDNO_TEXTAREA]': uid_str,
 		'model[IMP_DATE_BEGIN]': date_begin,
 		'model[IMP_DATE_END]': date_end,
 		'model[IMP_RESULT]': 0,
@@ -162,8 +166,12 @@ def download_asset_page(
 	file_path=configs.default_asset_page_path):
 	if login_asset(session, password) is False:
 		return False
+	if type(uid) is list:
+		uid_str = '\n'.join(uid)
+	else:
+		uid_str = uid
 	data = {
-		'DUTY_IDNO_TEXTAREA': uid,
+		'DUTY_IDNO_TEXTAREA': uid_str,
 		'IMP_DATE_BEGIN': date_begin,
 		'IMP_DATE_END': date_end,
 		'IMP_RESULT': 0
@@ -175,6 +183,9 @@ def download_asset_page(
 	for attr in current_useless_attrs:
 		data[attr] = ''
 	response = session.post(urls.url_asset_print, data=data)
+	if '<script>' in response.text:
+		# This is the head of the error message.
+		return False
 	with open(file_path, 'wb') as f:
 		f.write(response.content)
 	return True
@@ -377,19 +388,26 @@ def get_detainable_list(session, dept):
 	response = session.post(urls.url_detainable_list, data=data)
 	return eval(response.text)['gridDatas']
 
-def get_case_details(session, exec_y, exec_t, exec_n):
+def get_case_details(session, exec_y=None, exec_t=None, exec_n=None, uid=None):
 	data = {
 		'model[EXEC_YEAR_Q]': formatted('%03d', exec_y),
 		'model[EXEC_CASE_Q]': formatted('%02d', exec_t),
-		'model[EXEC_SEQNO_Q]': formatted('%08d', exec_n)
+		'model[EXEC_SEQNO_Q]': formatted('%08d', exec_n),
+		'model[DUTY_IDNO_Q]': formatted('%s', uid)
 	}
-	current_useless_attrs = [
-		'model[DUTY_IDNO_Q]', 'model[DUTY_NAME_Q]'
-	]
+	current_useless_attrs = ['model[DUTY_NAME_Q]']
 	response = session.post(urls.url_case_details, data=data)
-	raw = eval(response.text)['SITU_LIST']
+	raw = eval(response.text)
 	key_info = ['EXEC_DATE', 'REMARK', 'EXEC_MRK']
-	return [{key: situ[key] for key in key_info} for situ in raw]
+	return {
+		'DUTY_NAME': raw['DUTY_NAME'],
+		'DUTY_IDNO': raw['DUTY_IDNO_ALL'].split(','),
+		'SITU_LIST': [
+			{key: situ[key] for key in key_info} for situ in raw['SITU_LIST']],
+		'IS_WHOLLY_OWNED': raw['INV1'] == '1',
+		'IS_PARTNERSHIP': raw['INV2'] == '1',
+		'BEGIN_DATE': tuple(map(int, raw['ADM_DATE'].split('/')))
+	}
 
 if __name__ == '__main__':
 	"""Preserved for unit-test only."""

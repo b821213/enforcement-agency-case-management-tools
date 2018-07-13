@@ -1,16 +1,14 @@
 from func_lib import login, read_input
-from func_lib import get_asset_page, get_case_stats, get_topay_summary
+from func_lib import get_asset_page, get_case_details, get_case_stats
 from secret import username_default, password_default, password_asset
 from configs import asset_date_begin
 import sys
 
 def get_duty_name_and_uid(
-	session, exec_y=None, exec_t=None, exec_n=None, uid=''):
-	# uid is returned even when uid is given as an argument for consistency.
-	data = get_case_stats(
-		session, exec_y=exec_y, exec_t=exec_t, exec_n1=exec_n,
-		uid=uid, noendbox=False)
-	return data[-1]['DUTY_NAME'], data[-1]['DUTY_IDNO']
+	session, exec_y=None, exec_t=None, exec_n=None, uid=None):
+	data = get_case_details(
+		session, exec_y=exec_y, exec_t=exec_t, exec_n=exec_n, uid=uid)
+	return data['DUTY_NAME'], data['DUTY_IDNO']
 
 def refined_asset_list(session, uid):
 	data = get_asset_page(
@@ -49,22 +47,23 @@ if __name__ == '__main__':
 			y, t, n = uid_or_seqno
 			print ('(%d/%d) %03d-%02d-%08d 查詢中' %
 				(index + 1, len(case_list), y, t, n))
-			name, uid = get_duty_name_and_uid(
+			name, uid_list = get_duty_name_and_uid(
 				session, exec_y=y, exec_t=t, exec_n=n)
 		else:
 			uid = uid_or_seqno
 			print ('(%d/%d) %s 查詢中' %
 				(index + 1, len(case_list), uid))
-			# uid is unchanged, but keep it for readability.
-			name, uid = get_duty_name_and_uid(session, uid=uid)
-		topay = get_topay_summary(session, uid=uid)
+			name, uid_list = get_duty_name_and_uid(session, uid=uid)
+		summary = get_case_stats(session, uid=uid_list[0], summary=True)[1]
+		topay = (summary['PAY_AMT_TOTAL'] - summary['RECEIVE_AMT_TOTAL']
+			- summary['RETURN_AMT_TOTAL'] - summary['RETURN_AMT_NO_TOTAL']
+			- summary['EVI_AMT_TOTAL'] - summary['PAY_AMT_RETURN_TOTAL'])
 		to_print = []
 		to_print.append(','.join([
 			'%03d-%02d-%08d' % (y, t, n) if type(uid_or_seqno) is tuple else '',
-			'%s (%s)' % (name, uid),
-			'%s' % '尚欠金額',
-			'%d' % get_topay_summary(session, uid=uid)]))
-		asset_list = refined_asset_list(session, uid)
+			'"%s (%s)"' % (name, str(uid_list)[1:-1].replace("'", '')),
+			'%s' % '尚欠金額', '%d' % topay]))
+		asset_list = refined_asset_list(session, uid_list)
 		for item in asset_list:
 			to_print.append(','.join(map(str, item)))
 		for line in to_print:
