@@ -4,12 +4,6 @@ from secret import username_default, password_default, password_asset
 from configs import asset_date_begin
 import sys
 
-def get_duty_name_and_uid(
-	session, exec_y=None, exec_t=None, exec_n=None, uid=None):
-	data = get_case_details(
-		session, exec_y=exec_y, exec_t=exec_t, exec_n=exec_n, uid=uid)
-	return data['DUTY_NAME'], data['DUTY_IDNO']
-
 def refined_asset_list(session, uid):
 	data = get_asset_page(
 		session, password_asset, uid, date_begin=asset_date_begin)
@@ -45,15 +39,24 @@ if __name__ == '__main__':
 	for index, uid_or_seqno in enumerate(case_list):
 		if type(uid_or_seqno) is tuple:
 			y, t, n = uid_or_seqno
+			uid = None
 			print ('(%d/%d) %03d-%02d-%08d 查詢中' %
 				(index + 1, len(case_list), y, t, n))
-			name, uid_list = get_duty_name_and_uid(
-				session, exec_y=y, exec_t=t, exec_n=n)
 		else:
 			uid = uid_or_seqno
+			y, t, n = None, None, None
 			print ('(%d/%d) %s 查詢中' %
 				(index + 1, len(case_list), uid))
-			name, uid_list = get_duty_name_and_uid(session, uid=uid)
+		details = get_case_details(
+			session, exec_y=y, exec_t=t, exec_n=n, uid=uid)
+		name = details['DUTY_NAME']
+		uid_list = details['DUTY_IDNO']
+		is_wholly_owned = details['IS_WHOLLY_OWNED']
+		is_partnership = details['IS_PARTNERSHIP']
+		if is_wholly_owned is True:
+			name = '(獨資) ' + name
+		if is_partnership is True:
+			name = '(合夥) ' + name
 		summary = get_case_stats(session, uid=uid_list[0], summary=True)[1]
 		topay = (summary['PAY_AMT_TOTAL'] - summary['RECEIVE_AMT_TOTAL']
 			- summary['RETURN_AMT_TOTAL'] - summary['RETURN_AMT_NO_TOTAL']
