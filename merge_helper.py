@@ -3,7 +3,7 @@ from secret import username_default, password_default
 import sys
 
 def is_hi_case(case):
-	return case['EXEC_CASE'] == '02'
+	return case['EXEC_CASE'] == 2
 
 def is_li_case(case):
 	return case['SEND_ORG_ID'] == '107001'
