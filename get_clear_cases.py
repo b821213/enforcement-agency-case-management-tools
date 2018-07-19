@@ -32,19 +32,33 @@ if __name__ == '__main__':
 			main_to_all[main_num] = []
 		main_to_all[main_num].append(case)
 	to_print = []
+	optimizable = (lambda stats:
+		(stats['EXEC_CASE'] == 1 and '國稅' not in stats['SEND_ORG_NAME']) or
+		(stats['EXEC_CASE'] == 3) or
+		(stats['EXEC_CASE'] == 4 and stats['SEND_ORG_ID'] == '107001'))
 	for main_num, cases in main_to_all.items():
-		exec_y = int(cases[0]['EXEC_YEAR'])
-		exec_t = int(cases[0]['EXEC_CASE'])
-		exec_n1 = int(cases[0]['EXEC_SEQNO'])
-		exec_n2 = int(cases[-1]['EXEC_SEQNO'])
 		try:
-			if get_topay_summary(
-				session, exec_y=exec_y, exec_t=exec_t,
-				exec_n1=exec_n1, exec_n2=exec_n2) == 0:
+			if len(cases) == 1 and optimizable(cases[0]):
+				topay = (
+					cases[0]['PAY_AMT'] - cases[0]['RECEIVE_AMT'] -
+					cases[0]['RETURN_AMT'] - cases[0]['RETURN_AMT_NO'])
+			else:
+				topay = get_topay_summary(
+					session, exec_y=cases[0]['EXEC_YEAR'],
+					exec_t=cases[0]['EXEC_CASE'], exec_n1=cases[0]['EXEC_SEQNO'],
+					exec_n2=cases[-1]['EXEC_SEQNO'])
+			if topay == 0:
 				to_print += cases
 		except Exception as e:
-			print ('處理 %03d-%02d-%08d~%08d 時遇到錯誤' %
-				(exec_y, exec_t, exec_n1, exec_n2))
-			print (e)
+			if len(cases) == 1:
+				num_str = '%03d-%02d-%08d' % (
+					cases[0]['EXEC_YEAR'], cases[0]['EXEC_CASE'],
+					cases[0]['EXEC_SEQNO'])
+			else:
+				num_str = '%03d-%02d-%08d~%08d' % (
+					cases[0]['EXEC_YEAR'], cases[0]['EXEC_CASE'],
+					cases[0]['EXEC_SEQNO'], cases[-1]['EXEC_SEQNO'])
+			print ('處理 %s 時遇到錯誤' % num_str)
+			print (e.__repr__())
 	with open(sys.argv[2], 'w') as f:
 		print_for_merge(ranged_case_list(to_print), f_out=f)
