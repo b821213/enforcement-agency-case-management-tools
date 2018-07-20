@@ -42,8 +42,9 @@ def print_for_merge(ranged_cl, f_out=sys.stdout):
 	print ('\n'.join(to_print_in_row), file=f_out)
 
 if __name__ == '__main__':
-	if len(sys.argv) != 3:
-		print ('使用說明: python [本程式名稱] [輸入檔名 (.csv)] [輸出檔名 (.txt)]')
+	if len(sys.argv) != 3 and len(sys.argv) != 4:
+		print ('使用說明: python [本程式名稱] [輸入檔名 (.csv)]'
+				' [輸出檔名 1 (.txt)] ([輸出檔名 2 (.txt)])')
 		sys.exit(0)
 	hi_print = None
 	li_print = None
@@ -64,6 +65,7 @@ if __name__ == '__main__':
 	done = {}
 	f_out = open(sys.argv[2], 'w')
 	case_list = read_input(sys.argv[1])
+	output_list_pool = []
 	for index, uid_or_seqno in enumerate(case_list):
 		if type(uid_or_seqno) is tuple:
 			y, t, n = uid_or_seqno
@@ -91,8 +93,12 @@ if __name__ == '__main__':
 				title_str += ' 尚欠金額 %d' % get_topay_summary(session, uid=uid)
 			print (title_str, file=f_out)
 			print_for_merge(ranged_case_list(data), f_out=f_out)
+			output_list_pool += ranged_case_list(data)
 			done[uid] = value_str
 		else:
 			print ('%s 同一義務人已出現於清單中: %s' %
 				(title_str, prev), file=f_out)
 	f_out.close()
+	if len(sys.argv) == 4:
+		with open(sys.argv[3], 'w') as f:
+			print_for_merge(output_list_pool, f_out=f)
