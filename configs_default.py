@@ -1,3 +1,5 @@
+# 使用者股別
+default_dept = ''
 default_page_size = 1000000
 browser_version = (
 	'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko)'
