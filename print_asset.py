@@ -1,7 +1,6 @@
-from func_lib import login, read_input, get_case_stats, download_asset_page
+from func_lib import login, read_input, get_case_details, download_asset_page
 from secret import username_default, password_default, password_asset
 from configs import adobe_reader_path, default_asset_page_path, asset_wait_time
-from get_asset_stats import get_duty_name_and_uid
 import sys
 import subprocess
 from time import sleep
@@ -13,14 +12,23 @@ if __name__ == '__main__':
 	session = login(username_default, password_default)
 	undo = []
 	case_list = read_input(sys.argv[1])
-	for index, (y, t, n) in enumerate(case_list):
+	for index, uid_or_seqno in enumerate(case_list):
+		if type(uid_or_seqno) is tuple:
+			y, t, n = uid_or_seqno
+			uid = None
+		else:
+			uid = uid_or_seqno
+			y, t, n = None, None, None
+		details = get_case_details(
+			session, exec_y=y, exec_t=t, exec_n=n, uid=uid)
+		name = details['DUTY_NAME']
+		uid_list = details['DUTY_IDNO']
 		try:
-			uid_list = get_duty_name_and_uid(
-				session, exec_y=y, exec_t=t, exec_n=n)[1]
-			print ('(%d/%d) %03d-%02d-%08d (%s) ' % (
+			print ('(%d/%d)%s %s (%s) ' % (
 				index + 1, len(case_list),
-				y, t, n,
-				str(uid_list)[1:-1].replace("'", '')), end='')
+				'' if (y, t, n) == (None, None, None)
+				else ' [%03d-%02d-%08d]' % (y, t, n),
+				name, str(uid_list)[1:-1].replace("'", '')), end='')
 			if download_asset_page(session, password_asset, uid_list) is False:
 				raise Exception('下載失敗')
 			print ('列印中')
