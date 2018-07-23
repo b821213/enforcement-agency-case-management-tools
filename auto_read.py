@@ -1,5 +1,6 @@
 from func_lib import login, read_input, formatted
 from func_lib import get_case_stats, get_case_details
+from merge_helper import is_li_case
 from configs import n_show_situ_items
 from secret import username_default, password_default
 import re
@@ -122,7 +123,37 @@ if __name__ == '__main__':
 	f_out = open(sys.argv[2], 'w', encoding='utf8')
 	print (','.join(['案號', '義務人', '狀態', '狀態日期']), file=f_out)
 	print (','.join(['日期', '內文', '備註', '主案號']), file=f_out)
-	for y, t, n in read_input(sys.argv[1]):
+	for index, uid_or_seqno in enumerate(read_input(sys.argv[1])):
+		if type(uid_or_seqno) is tuple:
+			y, t, n = uid_or_seqno
+		else:
+			uid = uid_or_seqno
+			stats = get_case_stats(session, uid=uid)
+			if len(stats) == 0:
+				print ('%s 查無未結案件' % uid)
+				continue
+			pos_main_case = []
+			for exec_t in [1, 3, 4]:
+				for case in stats:
+					if not is_li_case(case) and case['EXEC_CASE'] == exec_t:
+						pos_main_case.append(
+							(case['EXEC_YEAR'], exec_t, case['EXEC_SEQNO']))
+						break
+			situ_list_pool = []
+			for _y, _t, _n in pos_main_case:
+				situ_list_pool += get_case_details(
+					session, exec_y=_y, exec_t=_t, exec_n=_n)['SITU_LIST']
+			situ_list_pool = sorted(
+				refined_situ_list(situ_list_pool),
+				key=lambda situ: situ['DATE'], reverse=True)
+			y, t, n = None, None, None
+			for situ in situ_list_pool:
+				if situ['MAIN_SEQNO'] is not '':
+					y, t, n = map(int, situ['MAIN_SEQNO'].split('-'))
+					break
+		if (y, t, n) == (None, None, None):
+			print ('%s 查無已執行案件' % uid)
+			continue
 		stats = get_case_stats(
 			session, exec_y=y, exec_t=t, exec_n1=n, noendbox=False)[0]
 		details = get_case_details(session, exec_y=y, exec_t=t, exec_n=n)
