@@ -8,6 +8,9 @@ def refined_asset_list(session, uid):
 	data = get_asset_page(
 		session, password_asset, uid, date_begin=asset_date_begin)
 	useful_data = {}
+	# Health insurance data should be handled separately because the latter
+	# data can replace the former data even when their UNIT_NM are not the same.
+	hi_data = None
 	for datum in data:
 		key = (datum['INCOME_DESC'], datum['UNIT_NM'], datum['IDN_BAN'])
 		exchange_rate = (
@@ -17,11 +20,17 @@ def refined_asset_list(session, uid):
 				0 if datum['AMT'] == ''
 				else int(datum['AMT'].replace(',', '')))
 		value = (datum['IMP_DATE'], int(exchange_rate * amount))
-		if key in useful_data:
-			if useful_data[key][0] < value[0]:
-				useful_data[key] = value
+		if datum['INCOME_DESC'] == '健保投保單位':
+			if hi_data is None or hi_data[1][0] < value[0]:
+				hi_data = (key, value)
 		else:
-			useful_data[key] = value
+			if key in useful_data:
+				if useful_data[key][0] < value[0]:
+					useful_data[key] = value
+			else:
+				useful_data[key] = value
+	if hi_data is not None:
+		useful_data[hi_data[0]] = hi_data[1]
 	ret_list = []
 	for key, value in useful_data.items():
 		if value[1] >= 450:
