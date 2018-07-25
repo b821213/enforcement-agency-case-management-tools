@@ -51,12 +51,17 @@ if __name__ == '__main__':
 			if li_print is False:
 				data = [datum for datum in data if not is_li_case(datum)]
 			n_cases = len(set([datum['MAIN_EXEC_NO'] for datum in data]))
-			title_str += ' 列出件數 %d' % n_cases
+			title_str += ' 未結件數 %d' % n_cases
 			if topay_print is True:
 				title_str += ' 尚欠金額 %d' % get_topay_summary(session, uid=uid)
 			print (title_str, file=f_out)
-			print_for_merge(ranged_case_list(data), f_out=f_out)
-			output_list_pool += ranged_case_list(data)
+			rcl = ranged_case_list(data)
+			if type(uid_or_seqno) is tuple:
+				# Removes the input case(s)
+				rcl = [datum for datum in rcl
+					if not ((y, t) == datum[:2] and datum[2] <= n <= datum[3])]
+			print_for_merge(rcl, f_out=f_out)
+			output_list_pool += rcl
 			done[uid] = value_str
 		else:
 			print ('%s 同一義務人已出現於清單中: %s' %
