@@ -406,7 +406,9 @@ def get_case_details(session, exec_y=None, exec_t=None, exec_n=None, uid=None):
 			{key: situ[key] for key in key_info} for situ in raw['SITU_LIST']],
 		'IS_WHOLLY_OWNED': raw['INV1'] == '1',
 		'IS_PARTNERSHIP': raw['INV2'] == '1',
-		'BEGIN_DATE': tuple(map(int, raw['ADM_DATE'].split('/')))
+		'BEGIN_DATE': (
+			None if raw['ADM_DATE'] == ''
+			else tuple(map(int, raw['ADM_DATE'].split('/'))))
 	}
 
 if __name__ == '__main__':
