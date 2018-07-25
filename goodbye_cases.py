@@ -1,6 +1,6 @@
 from func_lib import login, get_case_stats, get_topay_summary, get_case_details
 from func_lib import ending_cases
-from auto_read import refined_situ_list
+from share_lib import refined_situ_list, print_and_record
 from configs import default_dept
 from secret import username_default, password_default
 import re
@@ -131,10 +131,6 @@ def get_possible_end_situ(session, exec_y, exec_t, exec_n):
 			[situ for constraint, situ in mask_list
 			if mask_checker(mask, constraint) is True])
 	return list(results)
-
-def print_and_record(*args, **kargs):
-	print (*args)
-	print (*args, **kargs)
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3:

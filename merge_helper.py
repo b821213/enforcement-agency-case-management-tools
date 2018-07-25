@@ -1,45 +1,8 @@
-from func_lib import login, read_input, get_case_stats, get_topay_summary
+from func_lib import login, get_case_stats, get_topay_summary
+from share_lib import (
+	read_input, ranged_case_list, print_for_merge, is_hi_case, is_li_case)
 from secret import username_default, password_default
 import sys
-
-def is_hi_case(case):
-	return case['EXEC_CASE'] == 2
-
-def is_li_case(case):
-	return case['SEND_ORG_ID'] == '107001'
-
-def is_hi_or_li_case(case):
-	return is_hi_case(case) or is_li_case(case)
-
-def ranged_case_list(case_list):
-	cur_last = (-1, -1, -1)
-	cur_left = (-1, -1, -1)
-	ret_list = []
-	for case in case_list:
-		y = int(case['EXEC_YEAR'])
-		t = int(case['EXEC_CASE'])
-		n = int(case['EXEC_SEQNO'])
-		if (y != cur_last[0] or t != cur_last[1] or n != cur_last[2] + 1):
-			ret_list.append((*cur_left, cur_last[2], cur_last[-1]))
-			cur_left = (y, t, n)
-		cur_last = (y, t, n, '*' if is_hi_or_li_case(case) else '')
-	ret_list.append((*cur_left, cur_last[2], cur_last[-1]))
-	return ret_list[1:]
-
-def print_for_merge(ranged_cl, f_out=sys.stdout):
-	data = sorted(ranged_cl, key=lambda x: (x[1], x[0], x[2]))
-	to_print = []
-	for ranged_n in data:
-		if ranged_n[2] == ranged_n[3]:
-			to_print.append('%03d-%02d-%06d%7s%s' %
-				(*ranged_n[:3], '', ranged_n[-1]))
-		else:
-			to_print.append('%03d-%02d-%06d~%06d%s' % ranged_n)
-	to_print_in_row = []
-	for i in range(0, len(to_print), 5):
-		to_print_in_row.append(
-			'\t' + '\t'.join(to_print[i : i + 5]))
-	print ('\n'.join(to_print_in_row), file=f_out)
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3 and len(sys.argv) != 4:

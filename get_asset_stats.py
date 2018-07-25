@@ -1,5 +1,5 @@
-from func_lib import login, read_input
-from func_lib import get_asset_page, get_case_details, get_case_stats
+from func_lib import login, get_asset_page, get_case_details, get_case_stats
+from share_lib import read_input
 from secret import username_default, password_default, password_asset
 from configs import asset_date_begin
 import sys

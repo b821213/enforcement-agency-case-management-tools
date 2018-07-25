@@ -1,7 +1,8 @@
 from func_lib import login, get_case_stats
+from share_lib import ranged_case_list, print_for_merge
 import sys
 from secret import username_default, password_default
-from merge_helper import ranged_case_list, print_for_merge
+from time import localtime as lt
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3:
@@ -21,8 +22,8 @@ if __name__ == '__main__':
 	if money_ub == -1:
 		money_ub = INF
 	MAXN = 400000
-	y_begin = 103
-	y_end = 107
+	y_begin = lt().tm_year - 4
+	y_end = lt().tm_year
 	data = []
 	session = login(username_default, password_default)
 	for y in range(y_begin, y_end + 1):

@@ -1,6 +1,6 @@
 from func_lib import login, get_case_stats, get_topay_summary
+from share_lib import is_li_case, ranged_case_list, print_for_merge
 from secret import username_default, password_default
-from merge_helper import is_li_case, ranged_case_list, print_for_merge
 import sys
 
 if __name__ == '__main__':

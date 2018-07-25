@@ -1,4 +1,5 @@
-from func_lib import login, read_input, get_case_details, download_asset_page
+from func_lib import login, get_case_details, download_asset_page
+from share_lib import read_input
 from secret import username_default, password_default, password_asset
 from configs import adobe_reader_path, default_asset_page_path, asset_wait_time
 import sys

@@ -1,112 +1,13 @@
-from func_lib import login, read_input, formatted
-from func_lib import get_case_stats, get_case_details
-from merge_helper import is_li_case
+from func_lib import login, get_case_stats, get_case_details
+from share_lib import formatted, read_input, is_li_case, refined_situ_list
 from configs import n_show_situ_items
 from secret import username_default, password_default
 import re
 import sys
 
-re_mainno = re.compile(r'\(代表號\d{3}-\d{2}-\d{8}\)')
-re_callpay = re.compile(r'\d*/\d*/\d*應到')
-re_lookinto = re.compile(r'調查\(.*\)')
-re_output = re.compile(r'匯出')
-re_e_mainno = re.compile(r'發文字號.{3}\d{3}.\d{8}字')
-re_e_docno = re.compile(r'嘉執.\d{3}.\d{8}字第\d{10}[A-Z]號')
-re_e_done = re.compile(r'已電子公文交換')
-re_e_response = re.compile(r'已扣押.*及手續費')
-re_three_sheet = re.compile(r'案款收領款繳款暨發\(還\)款通知')
-re_launch = re.compile(r'發出文件.*')
-re_layaway_start = re.compile(r'CY5-011.*分期')
-re_layaway_end = re.compile(r'CY5-01\d限期履行')
-
-def refined_command(raw_command):
-	# rule-based refinements
-	command = raw_command
-	comment = ''
-	main_num = ''
-	# get main seqno
-	m = re_mainno.search(command)
-	if m is not None:
-		main_num = command[m.start() + 4: m.end() - 1]
-		command = command[: m.start()] + command[m.end():]
-	# the following conditions should be mutual exclusive
-	# notice that the order is important
-	m = re_callpay.search(command)
-	if m is not None:
-		y, m, d = map(int, command[m.start(): m.end() - 2].split('/'))
-		y -= 1911
-		command = '傳繳 (%03d/%02d/%02d 止)' % (y, m, d)
-	m = re_lookinto.search(command)
-	if m is not None:
-		comment = command[m.start() + 3: m.end() - 1].split(',')
-		command = '調查個人資料'
-	m = re_output.search(command)
-	if m is not None:
-		comment = command[: m.end() - 2]
-		command = '資料匯出'
-	m = re_e_mainno.search(command)
-	if m is not None:
-		t_map = {'稅': 1, '健': 2, '罰': 3, '費': 4}
-		y = int(command[m.start() + 7: m.start() + 10])
-		t = t_map[command[m.start() + 10]]
-		n = int(command[m.start() + 11: m.start() + 19])
-		main_num = '%03d-%02d-%08d' % (y, t, n)
-		m = re_e_docno.search(command)
-		if m is not None:
-			comment = command[m.start(): m.end()]
-		command = command.split(',')[0]
-	m = re_e_response.search(command)
-	if m is not None:
-		comment = command[: m.start()]
-		command = '金融機構回覆'
-	m = re_three_sheet.search(command)
-	if m is not None:
-		comment = re.search(r'\d+', command).group()
-		command = '三聯單'
-	m = re_launch.search(command)
-	if m is not None:
-		command = command[m.start() + 4: m.end()]
-	return command, comment, main_num
-
-def refined_situ_list(situ_list):
-	tmp_list = []
-	for situ in situ_list:
-		y, m, d = map(int, situ['EXEC_DATE'].split()[0].split('/'))
-		y -= 1911
-		date = (y, m, d)
-		command, comment, main_num = refined_command(situ['REMARK'])
-		if command == '':
-			command = '執行終結'
-		tmp_list.append((date, command, comment, main_num))
-	ret_list = []
-	docno_map = {}
-	for date, command, comment, main_num in tmp_list:
-		if command in {'資料匯出', '收發註記已發', '金融機構回覆'}:
-			continue
-		# here use str(comment) since comment may be a list
-		if re_e_docno.match(str(comment)) is not None:
-			date_list = docno_map.get(comment)
-			if date_list is None:
-				date_list = []
-			if re_e_done.match(command) is not None:
-				date_list.append(date)
-				docno_map[comment] = date_list
-				continue
-			else:
-				date_list = sorted(list(set(date_list)))
-				if len(date_list) == 0:
-					command += ' (尚未發出)'
-				else:
-					date_string = ','.join([
-						formatted('%03d/%02d/%02d', d) for d in date_list])
-					command += ' (' + date_string + ' 已交換)'
-		ret_list.append({
-			'DATE': date, 'COMMAND': command,
-			'COMMENT': comment, 'MAIN_SEQNO': main_num
-		})
-	return ret_list
-
 def check_layaway(situ_list):
+	re_layaway_start = re.compile(r'CY5-011.*分期')
+	re_layaway_end = re.compile(r'CY5-01\d限期履行')
 	for situ in situ_list:
 		command = situ['COMMAND']
 		if re_layaway_end.search(command) is not None:

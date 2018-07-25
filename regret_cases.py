@@ -1,5 +1,5 @@
 from func_lib import login, ending_cases
-from goodbye_cases import print_and_record
+from share_lib import print_and_record
 from configs import default_dept
 from secret import username_default, password_default
 import sys

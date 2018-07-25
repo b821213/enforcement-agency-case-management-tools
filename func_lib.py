@@ -3,26 +3,7 @@ import sys
 import urls
 import configs
 from time import localtime as lt
-
-def read_input(file_path):
-	f = open(file_path, 'r')
-	ret = []
-	for line in f:
-		data = line[:-1].split(',')
-		if len(data) < 3:
-			uid = data[0]
-			if len(data) == 1 or data[1] is not '':
-				ret.append(uid)
-		else:
-			y, t, n = map(int, data[:3])
-			if len(data) == 3 or data[3] is not '':
-				ret.append((y, t, n))
-	f.close()
-	return ret
-
-def formatted(form, value):
-	"""This function is only used for simplifying code."""
-	return '' if value is None else form % value
+from share_lib import formatted
 
 def regulized(text):
 	to_replace = {
