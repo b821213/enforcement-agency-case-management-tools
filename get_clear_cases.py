@@ -1,5 +1,6 @@
 from func_lib import login, get_case_stats, get_topay_summary
-from share_lib import is_li_case, ranged_case_list, print_for_merge
+from share_lib import (
+	is_li_case, ranged_case_list, print_for_merge, get_topay_single)
 from secret import username_default, password_default
 import sys
 
@@ -32,17 +33,12 @@ if __name__ == '__main__':
 			main_to_all[main_num] = []
 		main_to_all[main_num].append(case)
 	to_print = []
-	optimizable = (lambda stats:
-		(stats['EXEC_CASE'] == 1 and '國稅' not in stats['SEND_ORG_NAME']) or
-		(stats['EXEC_CASE'] == 3) or
-		(stats['EXEC_CASE'] == 4 and stats['SEND_ORG_ID'] == '107001'))
 	for main_num, cases in main_to_all.items():
 		try:
-			if len(cases) == 1 and optimizable(cases[0]):
-				topay = (
-					cases[0]['PAY_AMT'] - cases[0]['RECEIVE_AMT'] -
-					cases[0]['RETURN_AMT'] - cases[0]['RETURN_AMT_NO'])
+			if len(cases) == 1:
+				topay = get_topay_single(session, cases[0])
 			else:
+				# The cases must be HI or LI
 				topay = get_topay_summary(
 					session, exec_y=cases[0]['EXEC_YEAR'],
 					exec_t=cases[0]['EXEC_CASE'], exec_n1=cases[0]['EXEC_SEQNO'],

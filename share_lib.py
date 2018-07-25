@@ -161,3 +161,16 @@ def refined_situ_list(situ_list):
 			'COMMENT': comment, 'MAIN_SEQNO': main_num
 		})
 	return ret_list
+
+def get_topay_single(session, case_stats):
+	from func_lib import get_topay_summary
+	if ('國稅' in case_stats['SEND_ORG_NAME'] or
+		case_stats['EXEC_CASE'] == 2 or
+		case_stats['SEND_ORG_ID'] == '107001'):
+		return get_topay_summary(
+			session, exec_y=case_stats['EXEC_YEAR'],
+			exec_t=case_stats['EXEC_CASE'], exec_n1=case_stats['EXEC_SEQNO'])
+	else:
+		return (
+			case_stats['PAY_AMT'] - case_stats['RECEIVE_AMT'] -
+			case_stats['RETURN_AMT'] - case_stats['RETURN_AMT_NO'])

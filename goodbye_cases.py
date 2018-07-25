@@ -1,6 +1,6 @@
-from func_lib import login, get_case_stats, get_topay_summary, get_case_details
-from func_lib import ending_cases
-from share_lib import refined_situ_list, print_and_record
+from func_lib import (
+	login, get_case_stats, get_case_details, ending_cases, get_topay_summary)
+from share_lib import refined_situ_list, print_and_record, get_topay_single
 from configs import default_dept
 from secret import username_default, password_default
 import re
@@ -51,17 +51,7 @@ def get_possible_end_situ(session, exec_y, exec_t, exec_n):
 	uid = stats['DUTY_IDNO']
 	# to reduce the number of queries, undo-amount of cases without interest
 	# will be calculated directly.
-	optimizable = (lambda stats:
-		(stats['EXEC_CASE'] == 1 and '國稅' not in stats['SEND_ORG_NAME']) or
-		(stats['EXEC_CASE'] == 3) or
-		(stats['EXEC_CASE'] == 4 and stats['SEND_ORG_ID'] == '107001'))
-	if optimizable(stats):
-		case_topay = (
-			stats['PAY_AMT'] - stats['RECEIVE_AMT'] -
-			stats['RETURN_AMT'] - stats['RETURN_AMT_NO'])
-	else:
-		case_topay = get_topay_summary(
-			session, exec_y=exec_y, exec_t=exec_t, exec_n1=exec_n)
+	case_topay = get_topay_single(session, stats)
 	has_cleared = case_topay == 0
 	# Two-stage optimization
 	# 	Look up topay_summary only if no reasonable ending situations are found
