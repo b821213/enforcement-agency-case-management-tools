@@ -397,6 +397,8 @@ def get_case_details(session, exec_y=None, exec_t=None, exec_n=None, uid=None):
 	current_useless_attrs = ['model[DUTY_NAME_Q]']
 	response = session.post(urls.url_case_details, data=data)
 	raw = eval(response.text)
+	if raw['FAIL'] != '':
+		return None
 	key_info = ['EXEC_DATE', 'REMARK', 'EXEC_MRK']
 	return {
 		'DUTY_NAME': raw['DUTY_NAME'],
