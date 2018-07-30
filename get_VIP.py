@@ -2,6 +2,7 @@ from func_lib import login, get_case_stats
 from share_lib import ranged_case_list, print_for_merge
 import sys
 from secret import username_default, password_default
+from configs import max_case_seqno
 from time import localtime as lt
 
 if __name__ == '__main__':
@@ -21,7 +22,6 @@ if __name__ == '__main__':
 		n_cases_ub = INF
 	if money_ub == -1:
 		money_ub = INF
-	MAXN = 400000
 	y_end = lt().tm_year - 1911
 	y_begin = y_end - 4
 	data = []
@@ -36,8 +36,8 @@ if __name__ == '__main__':
 			while not success and counter > 0:
 				try:
 					data += get_case_stats(
-						session, exec_y=y, exec_t=t, exec_n1=1, exec_n2=MAXN,
-						dept=dept)
+						session, exec_y=y, exec_t=t, exec_n1=1,
+						exec_n2=max_case_seqno, dept=dept)
 				except Exception as e:
 					err_type = type(e)
 					err_args = e.args

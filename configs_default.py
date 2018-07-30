@@ -14,3 +14,6 @@ asset_date_begin = ''
 asset_wait_time = 5
 # 進行簿顯示條目數量
 n_show_situ_items = 5
+# 單年單一類別案號最大值
+max_case_seqno = 400000
+

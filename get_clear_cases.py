@@ -2,6 +2,7 @@ from func_lib import login, get_case_stats, get_topay_summary
 from share_lib import (
 	is_li_case, ranged_case_list, print_for_merge, get_topay_single)
 from secret import username_default, password_default
+from configs import max_case_seqno
 import sys
 
 if __name__ == '__main__':
@@ -21,7 +22,7 @@ if __name__ == '__main__':
 	for exec_y in range(year_begin, year_end + 1):
 		cases += get_case_stats(
 			session, exec_y=exec_y, exec_t=exec_t,
-			exec_n1=1, exec_n2=400000, dept=dept)
+			exec_n1=1, exec_n2=max_case_seqno, dept=dept)
 	main_to_all = {}
 	for case in cases:
 		if exec_t == 4 and LI_option == 1 and is_li_case(case):
