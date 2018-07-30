@@ -22,8 +22,8 @@ if __name__ == '__main__':
 	if money_ub == -1:
 		money_ub = INF
 	MAXN = 400000
-	y_begin = lt().tm_year - 4
-	y_end = lt().tm_year
+	y_end = lt().tm_year - 1911
+	y_begin = y_end - 4
 	data = []
 	session = login(username_default, password_default)
 	for y in range(y_begin, y_end + 1):
