@@ -171,57 +171,75 @@ def download_asset_page(
 		f.write(response.content)
 	return True
 
-def get_old_ended_cases_stats(
-	session, exec_y=None, ended_y=None, exec_t=None, exec_n1=None, exec_n2=None,
-	in_date_s=None, in_date_e=None, dept='', keepterm=None):
+def get_ended_case_stats(
+	session, in_date_s=None, in_date_e=None, dept='',
+	b98_exec_y=None, b98_ended_y=None, b98_exec_t=None, b98_exec_n1=None,
+	b98_exec_n2=None, a98_end_code=None, a98_exec_t=None, a98_exec_y=None,
+	a98_exec_n1=None, a98_exec_n2=None,
+	exec_y=None, exec_t=None, exec_n1=None, exec_n2=None,
+	uid='', end_situ=None, keepterm=None):
 	"""
-	This function is only available for file manager account.
 	For those cases ended before 98y, all cases share a number
 	series regardless of their type, but still stored separately.
 	Besides, the series number has form as
 		%03d-CY-%03d%02d%08d %
-			(exec_y, ended_y, case_type, series_number)
-	And current system doesn't support to leave exec_y to be empty.
-	That is to say, if anyone want to get cases ended in some year,
-	he/she has to send lots of queries which fully cover all possible
-	exec_y by him/herself.
+			(b98_exec_y, b98_ended_y, case_type, series_number)
+
+	Notice that exec_t should be [AB]%02d.
 	"""
-	if case_n2 is None:
-		case_n2 = case_n1
-	voc_group = [exec_y, ended_y, exec_t, exec_n1, exec_n2]
-	count_none = sum([1 if ele is None else 0 for ele in voc_group])
-	if count_none == len(voc_group):
-		voc_type = 0
-	elif count_none == 0:
+	if b98_exec_n2 is None:
+		b98_exec_n2 = b98_exec_n1
+	b98_attrs = [b98_exec_y, b98_ended_y, b98_exec_t, b98_exec_n1, b98_exec_n2]
+	b98_count_none = sum([1 if attr is None else 0 for attr in b98_attrs])
+	if a98_exec_n2 is None:
+		a98_exec_n2 = a98_exec_n1
+	a98_attrs = [a98_end_code, a98_exec_t, a98_exec_n1, a98_exec_n2]
+	a98_count_none = sum([1 if attr is None else 0 for attr in a98_attrs])
+	if b98_count_none == 0 and a98_count_none == 0:
+		raise ValueError('請確認查詢標的為 98 年前案件或 98 年後案件')
+	elif b98_count_none == 0:
 		voc_type = 1
+	elif a98_count_none == 0:
+		voc_type = 2
+	elif b98_count_none != len(b98_attrs):
+		raise ValueError(
+				'請確認下列資料是否齊全: 執行年度、歸檔年度、案件別、檔號')
+	elif a98_count_none != len(a98_attrs):
+		raise ValueError(
+				'請確認下列資料是否齊全: 分類號、案件別、歸檔年度、檔號')
 	else:
-		print ('請確認下列資料是否齊全: 執行年度、歸檔年度、案件別、檔號',
-			file=sys.stderr)
-		raise ValueError
+		voc_type = 0
 	data = {
-		'model[VOC_YEAR]': formatted('%03d', exec_y),
+		'model[EXEC_YEAR]': formatted('%03d', exec_y),
+		'model[EXEC_CASE]': formatted('%s', exec_t),
+		'model[EXEC_SEQNO_S]': formatted('%08d', exec_n1),
+		'model[EXEC_SEQNO_E]': formatted('%08d', exec_n2),
+		'model[VOC_YEAR]': formatted('%03d', b98_exec_y),
 		'model[VOC_TYPE_SNAME]': 'CY',
-		'model[VOC_SEQ_YEAR1]': formatted('%03d', ended_y),
-		'model[VOC_CASE_TYPE1]': formatted('%02d', exec_t),
-		'model[VOC_SEQ_NO_S1]': formatted('%08d', exec_n1),
-		'model[VOC_SEQ_NO_E1]': formatted('%08d', exec_n2),
+		'model[VOC_SEQ_YEAR1]': formatted('%03d', b98_ended_y),
+		'model[VOC_CASE_TYPE1]': formatted('%02d', b98_exec_t),
+		'model[VOC_SEQ_NO_S1]': formatted('%08d', b98_exec_n1),
+		'model[VOC_SEQ_NO_E1]': formatted('%08d', b98_exec_n2),
+		'model[FILE_KIND]': formatted('%08d', a98_end_code),
+		'model[VOC_CASE_TYPE2]': formatted('%02d', a98_exec_t),
+		'model[VOC_SEQ_YEAR2]': formatted('%03d', a98_exec_y),
+		'model[VOC_SEQ_NO_S2]': formatted('%07d', a98_exec_n1),
+		'model[VOC_SEQ_NO_E2]': formatted('%07d', a98_exec_n2),
 		'model[VOC_TYPE]': voc_type,
 		'model[END_FILE_DATE_S]': formatted('%03d%02d%02d', in_date_s),
 		'model[END_FILE_DATE_E]': formatted('%03d%02d%02d', in_date_e),
 		'model[DEPT_NO]': dept,
+		'model[DUTY_IDNO]': uid,
+		'model[END_SITU]': formatted('%02d', end_situ),
 		'model[KEEPTERM]': formatted('%03d', keepterm),
 		'model[paginaiton][pages][]': 1,
 		'model[paginaiton][pageNo]': 1,
 		'model[paginaiton][pageSize]': configs.default_page_size
 	}
 	current_useless_attrs = [
-		'model[EXEC_YEAR]', 'model[EXEC_CASE]', 'model[EXEC_SEQNO]',
-		'model[EXEC_SEQNO_S]', 'model[EXEC_SEQNO_E]', 'model[END_FILE_NO]',
-		'model[EXEC_RECTYPE]', 'model[VOC_SEQ_YEAR2]', 'model[VOC_CASE_TYPE2]',
-		'model[VOC_SEQ_NO_S2]', 'model[VOC_SEQ_NO_E2]', 'model[QRY_TYPE]',
-		'model[FILE_KIND]', 'model[DUTY_IDNO]', 'model[DUTY_NAME]',
-		'model[CASE_TYPE]', 'model[END_SITU]', 'model[ORDERBY]',
-		'model[USER_NO]', 'model[paginaiton][totalPage]',
+		'model[EXEC_SEQNO]', 'model[END_FILE_NO]', 'model[EXEC_RECTYPE]',
+		'model[QRY_TYPE]', 'model[DUTY_NAME]', 'model[CASE_TYPE]',
+		'model[ORDERBY]', 'model[paginaiton][totalPage]', 
 		'model[paginaiton][totalCount]'
 	]
 	for attr in current_useless_attrs:
