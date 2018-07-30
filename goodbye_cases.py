@@ -124,7 +124,7 @@ def get_possible_end_situ(session, exec_y, exec_t, exec_n):
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3:
-		print ('使用說明: python [本程式名稱] [輸入檔名 (.csv)] [輸出檔名 (.csv)]')
+		print ('使用說明: python [本程式名稱] [輸入檔名 (.csv)] [紀錄檔名 (.csv)]')
 		sys.exit(0)
 	session = login(username_default, password_default)
 	# Reads input into case_list
@@ -148,27 +148,27 @@ if __name__ == '__main__':
 	# Checks possibility and does ending process
 	print ('開始報結...')
 	suc_count = 0
-	f_out = open(sys.argv[2], 'w')
+	f_err = open(sys.argv[2], 'w')
 	for y, t, n, usr_situ, pos_situ in case_list:
 		situ = usr_situ
 		if pos_situ is None:
 			print_and_record ('%03d,%02d,%08d,%s' %
-					(y, t, n, '案件已報結/掛結'), file=f_out)
+					(y, t, n, '案件已報結/掛結'), file=f_err)
 			continue
 		if situ is None:
 			if len(pos_situ) == 0:
 				print_and_record ('%03d,%02d,%08d,%s' %
-					(y, t, n, '無適當終結情形'), file=f_out)
+					(y, t, n, '無適當終結情形'), file=f_err)
 				continue
 			elif len(pos_situ) > 1:
 				print_and_record ('%03d,%02d,%08d,%s' %
-					(y, t, n, '多重可能終結情形: %r' % pos_situ), file=f_out)
+					(y, t, n, '多重可能終結情形: %r' % pos_situ), file=f_err)
 				continue
 			else:
 				situ = pos_situ[0]
 		if situ not in pos_situ:
 			print_and_record('%03d,%02d,%08d,%s' %
-				(y, t, n, '終結情形不合法 (%r)' % pos_situ), file=f_out)
+				(y, t, n, '終結情形不合法 (%r)' % pos_situ), file=f_err)
 			continue
 		status, msg = ending_cases(
 			session, default_dept, y, t, n, situ)
@@ -177,7 +177,7 @@ if __name__ == '__main__':
 			suc_count += 1
 		else:
 			print_and_record ('%03d,%02d,%08d,%s' %
-				(y, t, n, msg), file=f_out)
-	f_out.close()
+				(y, t, n, msg), file=f_err)
+	f_err.close()
 	print ('-' * 40)
 	print ('成功 %d 件\t失敗 %d 件' % (suc_count, len(case_list) - suc_count))

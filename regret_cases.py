@@ -6,7 +6,7 @@ import sys
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3:
-		print ('使用說明: python [本程式名稱] [輸入檔名 (.csv)] [輸出檔名 (.csv)]')
+		print ('使用說明: python [本程式名稱] [輸入檔名 (.csv)] [紀錄檔名 (.csv)]')
 		sys.exit(0)
 	session = login(username_default, password_default)
 	case_list = []
@@ -22,14 +22,14 @@ if __name__ == '__main__':
 			case_list.append([y, t, n])
 	f_in.close()
 	suc_count = 0
-	f_out = open(sys.argv[2], 'w')
+	f_err = open(sys.argv[2], 'w')
 	for y, t, n in case_list:
 		suc, msg = ending_cases(session, default_dept, y, t, n, undo=True)
 		if suc is True:
 			print ('%03d,%02d,%08d,%s' % (y, t, n, msg))
 			suc_count += 1
 		else:
-			print_and_record ('%03d,%02d,%08d,%s' % (y, t, n, msg), file=f_out)
-	f_out.close()
+			print_and_record ('%03d,%02d,%08d,%s' % (y, t, n, msg), file=f_err)
+	f_err.close()
 	print ('-' * 40)
 	print ('成功 %d 件\t失敗 %d 件' % (suc_count, len(case_list) - suc_count))
