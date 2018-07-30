@@ -148,7 +148,7 @@ if __name__ == '__main__':
 	# Checks possibility and does ending process
 	print ('開始報結...')
 	suc_count = 0
-	f_err = open(sys.argv[2], 'w')
+	f_err = open(sys.argv[2], 'w', encoding='utf-8-sig')
 	for y, t, n, usr_situ, pos_situ in case_list:
 		situ = usr_situ
 		if pos_situ is None:

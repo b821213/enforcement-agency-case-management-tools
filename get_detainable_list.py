@@ -8,7 +8,7 @@ if __name__ == '__main__':
 		sys.exit(0)
 	session = login(username_default, password_default)
 	data = get_detainable_list(session, sys.argv[1])
-	f_out = open(sys.argv[2], 'w')
+	f_out = open(sys.argv[2], 'w', encoding='utf-8-sig')
 	print (','.join(['義務人統編', '案件數', '尚欠金額', '金融餘額']), file=f_out)
 	for datum in data:
 		uid = datum['DUTY_IDNO'].strip()

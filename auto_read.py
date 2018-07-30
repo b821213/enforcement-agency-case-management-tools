@@ -52,8 +52,8 @@ if __name__ == '__main__':
 			'[輸出檔名 (.csv)] [紀錄檔名 (.csv)]')
 		sys.exit(0)
 	session = login(username_default, password_default)
-	f_out = open(sys.argv[2], 'w', encoding='utf8')
-	f_err = open(sys.argv[3], 'w', encoding='utf8')
+	f_out = open(sys.argv[2], 'w', encoding='utf-8-sig')
+	f_err = open(sys.argv[3], 'w', encoding='utf-8-sig')
 	print (','.join(['案號', '義務人', '狀態', '狀態日期']), file=f_out)
 	print (','.join(['日期', '內文', '備註', '主案號']), file=f_out)
 	for index, uid_or_seqno in enumerate(read_input(sys.argv[1])):

@@ -22,7 +22,7 @@ if __name__ == '__main__':
 			case_list.append([y, t, n])
 	f_in.close()
 	suc_count = 0
-	f_err = open(sys.argv[2], 'w')
+	f_err = open(sys.argv[2], 'w', encoding='utf-8-sig')
 	for y, t, n in case_list:
 		suc, msg = ending_cases(session, default_dept, y, t, n, undo=True)
 		if suc is True:

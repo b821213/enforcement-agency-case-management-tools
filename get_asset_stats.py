@@ -43,7 +43,7 @@ if __name__ == '__main__':
 		sys.exit(0)
 	session = login(username_default, password_default)
 	flip_flop = 0
-	output = open(sys.argv[2], 'w', encoding='utf8')
+	output = open(sys.argv[2], 'w', encoding='utf-8-sig')
 	case_list = read_input(sys.argv[1])
 	for index, uid_or_seqno in enumerate(case_list):
 		if type(uid_or_seqno) is tuple:

@@ -26,7 +26,7 @@ if __name__ == '__main__':
 			topay_print = True if response == 'y' else False
 	session = login(username_default, password_default)
 	done = {}
-	f_out = open(sys.argv[2], 'w')
+	f_out = open(sys.argv[2], 'w', encoding='utf-8-sig')
 	case_list = read_input(sys.argv[1])
 	output_list_pool = []
 	for index, uid_or_seqno in enumerate(case_list):
