@@ -174,10 +174,10 @@ def download_asset_page(
 def get_ended_case_stats(
 	session, in_date_s=None, in_date_e=None, dept='',
 	b98_exec_y=None, b98_ended_y=None, b98_exec_t=None, b98_exec_n1=None,
-	b98_exec_n2=None, a98_end_code=None, a98_exec_t=None, a98_exec_y=None,
+	b98_exec_n2=None, a98_end_code=None, a98_exec_t=None, a98_ended_y=None,
 	a98_exec_n1=None, a98_exec_n2=None,
 	exec_y=None, exec_t=None, exec_n1=None, exec_n2=None,
-	uid='', end_situ=None, keepterm=None):
+	uid='', end_situ=None, keepterm=''):
 	"""
 	For those cases ended before 98y, all cases share a number
 	series regardless of their type, but still stored separately.
@@ -193,7 +193,8 @@ def get_ended_case_stats(
 	b98_count_none = sum([1 if attr is None else 0 for attr in b98_attrs])
 	if a98_exec_n2 is None:
 		a98_exec_n2 = a98_exec_n1
-	a98_attrs = [a98_end_code, a98_exec_t, a98_exec_n1, a98_exec_n2]
+	a98_attrs = [
+		a98_end_code, a98_exec_t, a98_ended_y, a98_exec_n1, a98_exec_n2]
 	a98_count_none = sum([1 if attr is None else 0 for attr in a98_attrs])
 	if b98_count_none == 0 and a98_count_none == 0:
 		raise ValueError('請確認查詢標的為 98 年前案件或 98 年後案件')
@@ -222,7 +223,7 @@ def get_ended_case_stats(
 		'model[VOC_SEQ_NO_E1]': formatted('%08d', b98_exec_n2),
 		'model[FILE_KIND]': formatted('%08d', a98_end_code),
 		'model[VOC_CASE_TYPE2]': formatted('%02d', a98_exec_t),
-		'model[VOC_SEQ_YEAR2]': formatted('%03d', a98_exec_y),
+		'model[VOC_SEQ_YEAR2]': formatted('%03d', a98_ended_y),
 		'model[VOC_SEQ_NO_S2]': formatted('%07d', a98_exec_n1),
 		'model[VOC_SEQ_NO_E2]': formatted('%07d', a98_exec_n2),
 		'model[VOC_TYPE]': voc_type,
@@ -231,7 +232,7 @@ def get_ended_case_stats(
 		'model[DEPT_NO]': dept,
 		'model[DUTY_IDNO]': uid,
 		'model[END_SITU]': formatted('%02d', end_situ),
-		'model[KEEPTERM]': formatted('%03d', keepterm),
+		'model[KEEPTERM]': keepterm,
 		'model[paginaiton][pages][]': 1,
 		'model[paginaiton][pageNo]': 1,
 		'model[paginaiton][pageSize]': configs.default_page_size
