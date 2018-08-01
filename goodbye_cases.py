@@ -162,7 +162,8 @@ if __name__ == '__main__':
 				continue
 			elif len(pos_situ) > 1:
 				print_and_record ('%03d,%02d,%08d,%s' %
-					(y, t, n, '多重可能終結情形: %r' % pos_situ), file=f_err)
+					(y, t, n, '多重可能終結情形: %s' %
+					str(pos_situ).replace(',', '.')), file=f_err)
 				continue
 			else:
 				situ = pos_situ[0]
