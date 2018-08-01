@@ -1,6 +1,8 @@
 # 使用者股別
 default_dept = ''
 default_page_size = 1000000
+# 案管系統主機 IP (以英文句號分隔的 4 個 0~255 間的數值)
+server_ip_addr = ''
 browser_version = (
 	'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko)'
 	' Chrome/67.0.3396.62 Safari/537.36')

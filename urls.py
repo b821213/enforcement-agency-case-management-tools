@@ -1,4 +1,6 @@
-url_host = ''
+from configs import server_ip_addr
+
+url_host = 'http://' + server_ip_addr + '/TPK/'
 url_login = url_host + 'Login/Login'
 url_login_asset = url_host + 'BelongingsCheck/UserCheck'
 url_case_stats = url_host + 'TPKD0401F/QueryGrid'
