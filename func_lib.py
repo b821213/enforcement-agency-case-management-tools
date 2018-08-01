@@ -171,6 +171,42 @@ def download_asset_page(
 		f.write(response.content)
 	return True
 
+def get_todestroy_case_stats(
+	session, todo_date_s=None, todo_date_e=None,
+	ended_date_s=None, ended_date_e=None, dept='', keepterm='',
+	exec_y=None, exec_t=None, exec_n1=None, exec_n2=None,
+	a98_end_code=None):
+	if exec_n2 is None:
+		exec_n2 = exec_n1
+	data = {
+		'model[QUERY_TYPE]': 'N',
+		'model[DEPT_NO]': dept,
+		'model[KEEPTERM]': keepterm,
+		'model[REC_TYPE]': 'A',
+		'model[EXEC_YEAR]': formatted('%03d', exec_y),
+		'model[EXEC_CASE]': formatted('%02d', exec_t),
+		'model[EXEC_SEQNO_S]': formatted('%08d', exec_n1),
+		'model[EXEC_SEQNO_E]': formatted('%08d', exec_n2),
+		'model[END_FILE_DATE_S]': formatted('%03d%02d%02d', ended_date_s),
+		'model[END_FILE_DATE_E]': formatted('%03d%02d%02d', ended_date_e),
+		'model[SHOULD_DESTORY_DATE_S]': formatted('%03d%02d%02d', todo_date_s),
+		'model[SHOULD_DESTORY_DATE_E]': formatted('%03d%02d%02d', todo_date_e),
+		'model[FILEKIND]': formatted('%08d', a98_end_code),
+		'model[paginaiton][pageNo]': 1,
+		'model[paginaiton][pageSize]': configs.default_page_size
+	}
+	current_useless_attrs = [
+		'model[DUTY_NAME]', 'model[EXEC_CASE_B]', 'model[FILESTATUS]',
+		'model[YEAR_TYPE]', 'model[YEAR98B_CASE]', 'model[YEAR98A_FILEKIND]',
+		'model[DESTROY_YEAR]', 'model[DESTROY_BATNO]',
+		'model[SHOULD_DESTORY_NUM]', 'model[SHOULD_DESTORY_CASE_NUM]',
+		'model[paginaiton][totalCount]'
+	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
+	response = session.post(urls.url_todestroy_case_stats, data=data)
+	return eval(response.content)['gridDatas']
+
 def get_ended_case_stats(
 	session, in_date_s=None, in_date_e=None, dept='',
 	b98_exec_y=None, b98_ended_y=None, b98_exec_t=None, b98_exec_n1=None,
