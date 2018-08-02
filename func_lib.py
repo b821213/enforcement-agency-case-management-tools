@@ -231,19 +231,16 @@ def get_ended_case_stats(
 		a98_exec_n2 = a98_exec_n1
 	a98_attrs = [
 		a98_end_code, a98_exec_t, a98_ended_y, a98_exec_n1, a98_exec_n2]
-	a98_count_none = sum([1 if attr is None else 0 for attr in a98_attrs])
-	if b98_count_none == 0 and a98_count_none == 0:
+	a98_count = sum([0 if attr is None else 1 for attr in a98_attrs])
+	if b98_count_none == 0 and a98_count > 0:
 		raise ValueError('請確認查詢標的為 98 年前案件或 98 年後案件')
 	elif b98_count_none == 0:
 		voc_type = 1
-	elif a98_count_none == 0:
+	elif a98_count > 0:
 		voc_type = 2
 	elif b98_count_none != len(b98_attrs):
 		raise ValueError(
 				'請確認下列資料是否齊全: 執行年度、歸檔年度、案件別、檔號')
-	elif a98_count_none != len(a98_attrs):
-		raise ValueError(
-				'請確認下列資料是否齊全: 分類號、案件別、歸檔年度、檔號')
 	else:
 		voc_type = 0
 	data = {
