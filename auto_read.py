@@ -20,7 +20,7 @@ def check_layaway(situ_list):
 def get_main_seqno(session, uid):
 	stats = get_case_stats(session, uid=uid, dept=default_dept)
 	if len(stats) == 0:
-		return False, ('%s,查無未結案件' % uid)
+		return False, ('義務人查無未結案件')
 	pos_main_case = []
 	for exec_t in [1, 3, 4]:
 		for case in stats:
@@ -42,31 +42,48 @@ def get_main_seqno(session, uid):
 			y, t, n = map(int, situ['MAIN_SEQNO'].split('-'))
 			break
 	if (y, t, n) == (None, None, None):
-		return False, ('%s,查無本股非勞健保已執行案件' % uid)
+		return False, ('義務人查無本股非勞健保已執行案件')
 	return True, (y, t, n)
 
 if __name__ == '__main__':
 	if len(sys.argv) != 4:
 		print (
 			'使用說明: python [本程式名稱] [輸入檔名 (.csv)]'
-			'[輸出檔名 (.csv)] [紀錄檔名 (.csv)]')
+			' [輸出檔名 (.csv)] [紀錄檔名 (.csv)]')
 		sys.exit(0)
+	deep = int(input('案號輸入者要查本案號還是主案號？ (1/本案號 2/主案號) '))
+	if deep not in [1, 2]:
+		raise ValueError('輸入應為 1 或 2')
 	session = login(username_default, password_default)
 	f_out = open(sys.argv[2], 'w', encoding='utf-8-sig')
 	f_err = open(sys.argv[3], 'w', encoding='utf-8-sig')
 	print (','.join(['案號', '義務人', '狀態', '狀態日期']), file=f_out)
 	print (','.join(['日期', '內文', '備註', '主案號']), file=f_out)
-	for index, uid_or_seqno in enumerate(read_input(sys.argv[1])):
-		if type(uid_or_seqno) is tuple:
+	input_list = read_input(sys.argv[1])
+	for index, uid_or_seqno in enumerate(input_list):
+		use_uid = type(uid_or_seqno) is str
+		if use_uid is True:
+			input_str = uid_or_seqno
+		else:
+			input_str = formatted('%03d,%02d,%08d', uid_or_seqno)
+		print ('(%d/%d) %s 查詢中...' %
+			(index + 1, len(input_list), input_str))
+		if use_uid is False:
+			# if deep == 2, use_uid will be reset as True
 			y, t, n = uid_or_seqno
+			if deep == 2:
+				uid = get_case_stats(
+					session, exec_y=y, exec_t=t, exec_n1=n)[0]['DUTY_IDNO']
+				use_uid = True
 		else:
 			uid = uid_or_seqno
+		if use_uid is True:
 			success, seqno_or_msg = get_main_seqno(session, uid)
-		if success is False:
-			print_and_record (seqno_or_msg, file=f_err)
-			continue
-		else:
-			y, t, n = seqno_or_msg
+			if success is False:
+				print_and_record (input_str + ',' + seqno_or_msg, file=f_err)
+				continue
+			else:
+				y, t, n = seqno_or_msg
 		try:
 			stats = get_case_stats(
 				session, exec_y=y, exec_t=t, exec_n1=n, noendbox=False)[0]
