@@ -20,7 +20,7 @@ def check_layaway(situ_list):
 def get_main_seqno(session, uid):
 	stats = get_case_stats(session, uid=uid, dept=default_dept)
 	if len(stats) == 0:
-		return False, ('義務人查無未結案件')
+		return False, '義務人查無未結案件'
 	pos_main_case = []
 	for exec_t in [1, 3, 4]:
 		for case in stats:
@@ -42,7 +42,7 @@ def get_main_seqno(session, uid):
 			y, t, n = map(int, situ['MAIN_SEQNO'].split('-'))
 			break
 	if (y, t, n) == (None, None, None):
-		return False, ('義務人查無本股非勞健保已執行案件')
+		return False, '義務人查無本股非勞健保已執行案件'
 	return True, (y, t, n)
 
 if __name__ == '__main__':
