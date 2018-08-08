@@ -418,6 +418,8 @@ def get_detainable_list(session, dept):
 	current_useless_attrs = [
 		'model[paginaiton][totalPage]', 'model[paginaiton][totalCount]'
 	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
 	response = session.post(urls.url_detainable_list, data=data)
 	return eval(response.text)['gridDatas']
 
@@ -429,6 +431,8 @@ def get_case_details(session, exec_y=None, exec_t=None, exec_n=None, uid=None):
 		'model[DUTY_IDNO_Q]': formatted('%s', uid)
 	}
 	current_useless_attrs = ['model[DUTY_NAME_Q]']
+	for attr in current_useless_attrs:
+		data[attr] = ''
 	response = session.post(urls.url_case_details, data=data)
 	raw = eval(response.text)
 	if raw['FAIL'] != '':
