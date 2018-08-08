@@ -43,5 +43,5 @@ if __name__ == '__main__':
 	if len(undo) > 0:
 		print ('未列印清單:')
 		for y, t, n, uid_list in undo:
-			print ('\t%03d-%02d-%08d (%s) ' % (
+			print ('\t%03d-%02d-%08d (%s)' % (
 				y, t, n, str(uid_list)[1:-1].replace("'", '')))
