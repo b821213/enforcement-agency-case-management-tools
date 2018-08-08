@@ -450,5 +450,45 @@ def get_case_details(session, exec_y=None, exec_t=None, exec_n=None, uid=''):
 			else tuple(map(int, raw['ADM_DATE'].split('/'))))
 	}
 
+def download_bank_response(
+	session, exec_y=None, exec_t=None, exec_n=None,
+	send_date_s=None, send_date_e=None,
+	receive_date_s=None, receive_date_e=None,
+	show_hi=True, show_li=True, dept='', uid='',
+	file_path=configs.default_bank_response_path):
+	if show_hi is True and show_li is True:
+		data_type = ''
+	elif show_hi is False and show_li is False:
+		data_type = 1
+	elif show_hi is True and show_li is False:
+		data_type = 2
+	else:
+		data_type = 3
+	data = {
+		'model[DUTY_IDNO]': uid,
+		'model[EXEC_YEAR]': formatted('%03d', exec_y),
+		'model[EXEC_CASE]': formatted('%02d', exec_t),
+		'model[EXEC_SEQNO]': formatted('%08d', exec_n),
+		'model[OUTDATE_S]': formatted('%03d%02d%02d', send_date_s),
+		'model[OUTDATE_E]': formatted('%03d%02d%02d', send_date_e),
+		'model[RECEIVE_DATE_S]': formatted('%03d%02d%02d', receive_date_s),
+		'model[RECEIVE_DATE_E]': formatted('%03d%02d%02d', receive_date_e),
+		'model[DATA_TYPE]': data_type,
+		'model[DEPT_NO]': dept,
+	}
+	current_useless_attrs = [
+		'model[DETAIN_TYPE]', 'model[REPLY_TYPE]', 'model[ATTR_ID]',
+		'model[CONTROL_TYPE]', 'model[ISSUE_NO]'
+	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
+	response = session.post(urls.url_bank_response_print, data=data)
+	if '<script>' in response.text:
+		# This is the head of the error message.
+		return False
+	with open(file_path, 'wb') as f:
+		f.write(response.content)
+	return True
+
 if __name__ == '__main__':
 	"""Preserved for unit-test only."""
