@@ -1,3 +1,5 @@
 username_default = ''
 password_default = ''
 password_asset = ''
+username_stats_manager = ''
+password_stats_manager = ''

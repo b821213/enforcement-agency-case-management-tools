@@ -490,5 +490,60 @@ def download_bank_response(
 		f.write(response.content)
 	return True
 
+def download_payment_list(
+	session, date_s=None, date_e=None,
+	exec_y=None, exec_t=None, exec_n1=None, exec_n2=None,
+	money_lb=None, money_ub=None, dept='', uid='',
+	show_key_in=True, show_electronic=True,
+	show_normal=True, show_hi=True, show_li=True,
+	file_path=configs.default_payment_list_path):
+	k_filter_map = {
+		(True, True): '',
+		(True, False): 1,
+		(False, True): 2
+	}
+	i_filter_map = {
+		(True, True, True): '',
+		(True, False, True): 1,
+		(True, True, False): 2,
+		(False, True, False): 3,
+		(False, False, True): 4,
+		(True, False, False): 5,
+		(False, True, True): 6
+	}
+	if show_key_in is False and show_electronic is False:
+		return False
+	if show_normal is False and show_hi is False and show_li is False:
+		return False
+	data = {
+		'YMD_S': formatted('%03d%02d%02d', date_s),
+		'YMD_E': formatted('%03d%02d%02d', date_e),
+		'EXEC_YEAR': formatted('%03d', exec_y),
+		'EXEC_CASE': formatted('%02d', exec_t),
+		'EXEC_SEQNO_S': formatted('%08d', exec_n1),
+		'EXEC_SEQNO_E': formatted('%08d', exec_n2),
+		'PAY_AMT_S': formatted('%d', money_lb),
+		'PAY_AMT_E': formatted('%d', money_ub),
+		'DEPT_NO': dept,
+		'DUTY_IDNO': uid,
+		'QTYPE': k_filter_map[(show_key_in, show_electronic)],
+		'QTYPE_2': i_filter_map[(show_normal, show_hi, show_li)],
+		'STYPE': 1,
+		'STYPE_2': 1
+	}
+	current_useless_attrs = [
+		'PKNO', 'SEND_ORG_ID', 'DUTY_NAME', 'CLASS_ID', 'TIMES', 'EXEC_DEPT_ID',
+		'Q_YM', 'CONDITION_1', 'CONDITION_2', 'CONDITION_3', 'CONDITION_4'
+	]
+	for attr in current_useless_attrs:
+		data[attr] = ''
+	response = session.post(urls.url_payment_list_print, data=data)
+	if '<script>' in response.text:
+		# This is the head of the error message.
+		return False
+	with open(file_path, 'wb') as f:
+		f.write(response.content)
+	return True
+
 if __name__ == '__main__':
 	"""Preserved for unit-test only."""
