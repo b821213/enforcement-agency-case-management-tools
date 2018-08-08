@@ -16,7 +16,7 @@ if __name__ == '__main__':
 	for index, uid_or_seqno in enumerate(case_list):
 		if type(uid_or_seqno) is tuple:
 			y, t, n = uid_or_seqno
-			uid = None
+			uid = ''
 		else:
 			uid = uid_or_seqno
 			y, t, n = None, None, None

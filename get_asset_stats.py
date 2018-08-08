@@ -48,7 +48,7 @@ if __name__ == '__main__':
 	for index, uid_or_seqno in enumerate(case_list):
 		if type(uid_or_seqno) is tuple:
 			y, t, n = uid_or_seqno
-			uid = None
+			uid = ''
 			print ('(%d/%d) %03d-%02d-%08d 查詢中' %
 				(index + 1, len(case_list), y, t, n))
 		else:

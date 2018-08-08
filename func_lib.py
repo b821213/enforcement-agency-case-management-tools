@@ -384,7 +384,7 @@ def ending_cases(
 		return True, success_msg
 
 def get_topay_summary(
-	session, exec_y=None, exec_t=None, exec_n1=None, exec_n2=None, uid=None):
+	session, exec_y=None, exec_t=None, exec_n1=None, exec_n2=None, uid=''):
 	if exec_n1 is None:
 		exec_n1 = exec_n2
 	if exec_n2 is None:
@@ -423,7 +423,7 @@ def get_detainable_list(session, dept):
 	response = session.post(urls.url_detainable_list, data=data)
 	return eval(response.text)['gridDatas']
 
-def get_case_details(session, exec_y=None, exec_t=None, exec_n=None, uid=None):
+def get_case_details(session, exec_y=None, exec_t=None, exec_n=None, uid=''):
 	data = {
 		'model[EXEC_YEAR_Q]': formatted('%03d', exec_y),
 		'model[EXEC_CASE_Q]': formatted('%02d', exec_t),
