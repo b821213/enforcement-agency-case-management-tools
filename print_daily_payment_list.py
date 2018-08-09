@@ -1,7 +1,9 @@
 from func_lib import login, download_payment_list
 from share_lib import read_input
 from secret import username_stats_manager, password_stats_manager
-from configs import adobe_reader_path, default_payment_list_path, payment_wait_time
+from configs import (
+	adobe_reader_path, default_payment_list_path,
+	payment_wait_time, current_dept_list)
 import sys
 import subprocess
 from time import sleep
@@ -13,10 +15,7 @@ if __name__ == '__main__':
 	y, m, d = map(int, input('請輸入查詢年月日 (yyy/mm/dd): ').split('/'))
 	date = (y, m, d)
 	session = login(username_stats_manager, password_stats_manager)
-	dept_list = [
-		'乙', '丁', '仁', '平', '甲', '孝', '和',
-		'忠', '信', '愛', '義', '德', '禮'
-	] 
+	dept_list = current_dept_list
 	undo = []
 	for index, dept in enumerate(dept_list):
 		try:

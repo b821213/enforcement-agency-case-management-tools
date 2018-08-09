@@ -26,4 +26,8 @@ payment_wait_time = 5
 n_show_situ_items = 5
 # 單年單一類別案號最大值
 max_case_seqno = 400000
-
+# 當前執行股別清單
+current_dept_list = [
+	'乙', '丁', '仁', '平', '甲', '孝', '和',
+	'忠', '信', '愛', '義', '德', '禮'
+]
