@@ -45,7 +45,8 @@ def get_possible_end_situ(session, exec_y, exec_t, exec_n):
 	# Returns None if the case has ended.
 	# Otherwise, returns a integer list of possible situations.
 	stats = get_case_stats(
-		session, exec_y=exec_y, exec_t=exec_t, exec_n1=exec_n)[0]
+		session, exec_y=exec_y, exec_t=exec_t, exec_n1=exec_n,
+		noendbox=False)[0]
 	if stats['END_DATE'] != '':
 		return None
 	uid = stats['DUTY_IDNO']
@@ -143,6 +144,8 @@ if __name__ == '__main__':
 	# Gets possible ending situation(s)
 	print ('判斷終結情形...')
 	for index, [y, t, n, usr_situ] in enumerate(case_list):
+		print ('(%d/%d) %03d-%02d-%08d 運算中...' % (
+			index + 1, len(case_list), y, t, n))
 		case_list[index].append(get_possible_end_situ(session, y, t, n))
 	# Checks possibility and does ending process
 	print ('開始報結...')
