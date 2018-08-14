@@ -23,7 +23,10 @@ def login(username, password):
 	session.post(
 		urls.url_login,
 		data={'Account': username, 'Password': password})
-	return session
+	if len(session.cookies) == 0:
+		return None
+	else:
+		return session
 
 def login_asset(session, password):
 	response = session.post(
@@ -34,6 +37,20 @@ def login_asset(session, password):
 		return False
 	else:
 		return True
+
+def get_default_dept_list(session):
+	url = urls.url_home_page
+	response = session.post(url)
+	return eval(regulized(response.text))['DEPT_NO_LIST']
+
+def get_complete_dept_list(session):
+	# Currently only accessible to file manager accounts.
+	url = urls.url_file_option_list
+	response = session.post(url)
+	complete_dept_list = [
+		pair['value'] for pair in eval(response.text)['DEPT_NO']
+		if pair['value'] != '']
+	return complete_dept_list
 
 def get_case_stats(
 	session, exec_y=None, exec_t=None, exec_n1=None, exec_n2=None,
