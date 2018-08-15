@@ -1,9 +1,8 @@
 import os
-from secret import *
 import re
 
-def write_back(settings):
-	with open('configs.py', 'w', encoding='utf8') as f:
+def write_back(settings, path):
+	with open(path, 'w', encoding='utf8') as f:
 		for key, value in settings.items():
 			print ('%s = %r' % (key, value), file=f)
 
@@ -84,15 +83,47 @@ if __name__ == '__main__':
 		else:
 			print ('IP 形如 xxx.xxx.xxx.xxx，其中 xxx 為 0~255 間的整數。')
 	# Writes back server_ip_addr first to enable web functions.
-	write_back(settings)
-	from func_lib import login
-	if username_default != '':
-		session = login(username_default, password_default)
-		if session is None:
-			print (
-				'執行人員帳號密碼 '
-				'(username_default, password_default) 設定錯誤。')
-		else:
+	write_back(settings, 'configs.py')
+	secret = {
+		'username_default': '',
+		'password_default': '',
+		'password_asset': '',
+		'username_file_manager': '',
+		'password_file_manager': '',
+		'username_stats_manager': '',
+		'password_stats_manager': ''
+	}
+	from func_lib import login, login_asset
+	from getpass import getpass
+	while True:
+		secret['username_default'] = input(
+			'請輸入執行人員帳號 (若無請按 Enter 跳過): ')
+		if secret['username_default'] != '':
+			secret['password_default'] = getpass(
+				'請輸入執行人員密碼 (輸入內容不會被顯示): ')
+			session = login(
+				secret['username_default'],
+				secret['password_default'])
+			if session is None:
+				print ('執行人員帳號或密碼有誤。')
+				again = input('是否重新輸入？(Y/n) ')
+				if again != 'n':
+					continue
+				else:
+					break
+			print ('帳號密碼驗證成功！')
+			while True:
+				secret['password_asset'] = getpass(
+					'請輸入查詢財產密碼 (輸入內容不會被顯示): ')
+				if login_asset(session, secret['password_asset']) is not True:
+					print ('查詢財產密碼有誤。')
+					again = input(
+						'是否重新輸入 (放棄將無法使用財冊相關功能)？(Y/n) ')
+					if again != 'n':
+						continue
+				else:
+					print ('查詢財產密碼驗證成功！')
+				break
 			print ('設定預設股別...')
 			set_default_dept(session, settings)
 			print ('設定 Adobe Reader 執行檔路徑...')
@@ -101,27 +132,49 @@ if __name__ == '__main__':
 			set_default_tmp_file_path(settings)
 			print ('設定財產清冊查詢起始日...')
 			set_default_asset_date_begin(settings)
-			write_back(settings)
+			write_back(settings, 'configs.py')
+			write_back(secret, 'secret.py')
 			print ('執行人員設定完畢！')
-	if username_file_manager != '':
-		session = login(username_file_manager, password_file_manager)
-		if session is None:
-			print (
-				'檔管人員帳號密碼 '
-				'(username_file_manager, password_file_manager) 設定錯誤。')
-		else:
-			print ('設定當前股別列表...')
-			set_complete_dept_list(session, settings)
-			write_back(settings)
-			print ('檔管人員設定完畢！')
-	if username_stats_manager != '':
-		session = login(username_stats_manager, password_stats_manager)
-		if session is None:
-			print (
-				'統計人員帳號密碼 '
-				'(username_stats_manager, password_stats_manager) 設定錯誤。')
-		else:
+		break
+	while True:
+		secret['username_file_manager'] = input(
+			'請輸入檔管人員帳號 (若無請按 Enter 跳過): ')
+		if secret['username_file_manager'] != '':
+			secret['password_file_manager'] = getpass(
+				'請輸入檔管人員密碼 (輸入內容不會被顯示): ')
+			session = login(
+				secret['username_file_manager'],
+				secret['password_file_manager'])
+			if session is None:
+				print ('檔管人員帳號或密碼設定錯誤。')
+				again = input('是否重新輸入？(Y/n) ')
+				if again != 'n':
+					continue
+			print ('帳號密碼驗證成功！')
 			print ('設定歷年股別列表...')
+			set_complete_dept_list(session, settings)
+			write_back(settings, 'configs.py')
+			write_back(secret, 'secret.py')
+			print ('檔管人員設定完畢！')
+		break
+	while True:
+		secret['username_stats_manager'] = input(
+			'請輸入統計人員帳號 (若無請按 Enter 跳過): ')
+		if secret['username_stats_manager'] != '':
+			secret['password_stats_manager'] = getpass(
+				'請輸入統計人員密碼 (輸入內容不會被顯示): ')
+			session = login(
+				secret['username_stats_manager'],
+				secret['password_stats_manager'])
+			if session is None:
+				print ('統計人員帳號密碼設定錯誤。')
+				again = input('是否重新輸入？(Y/n) ')
+				if again != 'n':
+					continue
+			print ('帳號密碼驗證成功！')
+			print ('設定當前股別列表...')
 			set_current_dept_list(session, settings)
-			write_back(settings)
+			write_back(settings, 'configs.py')
+			write_back(secret, 'secret.py')
 			print ('統計人員設定完畢！')
+		break

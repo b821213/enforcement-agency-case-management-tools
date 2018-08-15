@@ -1,7 +1,0 @@
-username_default = ''
-password_default = ''
-password_asset = ''
-username_file_manager = ''
-password_file_manager = ''
-username_stats_manager = ''
-password_stats_manager = ''
