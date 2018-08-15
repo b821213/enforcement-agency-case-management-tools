@@ -33,8 +33,7 @@ def login_asset(session, password):
 		urls.url_login_asset, data={'value': password})
 	errmsg = eval(response.content)['FAIL']
 	if errmsg is not '':
-		print (errmsg, file=sys.stderr)
-		return False
+		return errmsg
 	else:
 		return True
 
@@ -132,8 +131,9 @@ def get_case_stats(
 def get_asset_page(
 	session, password, uid,
 	date_begin=configs.asset_date_begin, date_end='%03d%02d%02d' % today()):
-	if login_asset(session, password) is False:
-		return []
+	true_or_errmsg = login_asset(session, password)
+	if true_or_errmsg is not True:
+		raise IOError(true_or_errmsg)
 	if type(uid) is list:
 		uid_str = '\n'.join(uid)
 	else:
@@ -162,8 +162,9 @@ def download_asset_page(
 	session, password, uid,
 	date_begin=configs.asset_date_begin, date_end='%03d%02d%02d' % today(),
 	file_path=configs.default_asset_page_path):
-	if login_asset(session, password) is False:
-		return False
+	true_or_errmsg = login_asset(session, password)
+	if true_or_errmsg is not True:
+		raise IOError(true_or_errmsg)
 	if type(uid) is list:
 		uid_str = '\n'.join(uid)
 	else:
