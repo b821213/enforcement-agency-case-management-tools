@@ -122,8 +122,8 @@ if __name__ == '__main__':
 		for situ in situ_list[: n_show_situ_items]:
 			print (','.join([
 				formatted('%03d/%02d/%02d', situ['DATE']),
-				situ['COMMAND'], str(situ['COMMENT']), situ['MAIN_SEQNO']
-			]), file=f_out)
+				situ['COMMAND'], str(situ['COMMENT']).replace(',', '，'),
+				situ['MAIN_SEQNO']]), file=f_out)
 		print (',' * (n_show_situ_items - 1), file=f_out)
 	f_out.close()
 	f_err.close()
