@@ -28,9 +28,9 @@
 	# 單年單一類別案號最大值
 	'max_case_seqno': 400000,
 	# 當前執行股別清單
-	'current_dept_list': [
-	],
+	'current_dept_list': [],
 	# 所有執行股別清單
-	'complete_dept_list': [
-	]
+	'complete_dept_list': [],
+	# 分署代號
+	'branch_code_name': ''
 }

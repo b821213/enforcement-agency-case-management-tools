@@ -69,6 +69,10 @@ def set_complete_dept_list(session, settings):
 	from func_lib import get_complete_dept_list
 	settings['complete_dept_list'] = get_complete_dept_list(session)
 
+def set_branch_code_name(session, settings):
+	from func_lib import get_branch_code_name
+	settings['branch_code_name'] = get_branch_code_name(session)
+
 if __name__ == '__main__':
 	with open('configs_default.py', 'r', encoding='utf-8-sig') as f:
 		settings = eval(f.read())
@@ -153,6 +157,8 @@ if __name__ == '__main__':
 			print ('帳號密碼驗證成功！')
 			print ('設定歷年股別列表...')
 			set_complete_dept_list(session, settings)
+			print ('設定分署代碼...')
+			set_branch_code_name(session, settings)
 			write_back(settings, 'configs.py')
 			write_back(secret, 'secret.py')
 			print ('檔管人員設定完畢！')

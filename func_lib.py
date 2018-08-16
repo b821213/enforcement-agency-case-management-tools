@@ -51,6 +51,12 @@ def get_complete_dept_list(session):
 		if pair['value'] != '']
 	return complete_dept_list
 
+def get_branch_code_name(session):
+	# Currently only accessible to file manager accounts.
+	url = urls.url_file_option_list
+	response = session.post(url)
+	return eval(response.text)['VOC_TYPE_SNAME']
+
 def get_case_stats(
 	session, exec_y=None, exec_t=None, exec_n1=None, exec_n2=None,
 	uid='', dept='', noendbox=True, YNK=True, summary=False):
@@ -236,7 +242,7 @@ def get_ended_case_stats(
 	For those cases ended before 98y, all cases share a number
 	series regardless of their type, but still stored separately.
 	Besides, the series number has form as
-		%03d-CY-%03d%02d%08d %
+		%03d-[code_name]-%03d%02d%08d %
 			(b98_exec_y, b98_ended_y, case_type, series_number)
 
 	Notice that exec_t should be [AB]%02d.
@@ -267,7 +273,7 @@ def get_ended_case_stats(
 		'model[EXEC_SEQNO_S]': formatted('%08d', exec_n1),
 		'model[EXEC_SEQNO_E]': formatted('%08d', exec_n2),
 		'model[VOC_YEAR]': formatted('%03d', b98_exec_y),
-		'model[VOC_TYPE_SNAME]': 'CY',
+		'model[VOC_TYPE_SNAME]': configs.branch_code_name,
 		'model[VOC_SEQ_YEAR1]': formatted('%03d', b98_ended_y),
 		'model[VOC_CASE_TYPE1]': formatted('%02d', b98_exec_t),
 		'model[VOC_SEQ_NO_S1]': formatted('%08d', b98_exec_n1),
