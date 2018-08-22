@@ -93,6 +93,11 @@ if __name__ == '__main__':
 				file=f_err)
 			continue
 		details = get_case_details(session, exec_y=y, exec_t=t, exec_n=n)
+		if details is None:
+			print_and_record (
+				'%s,請確認閱讀權限' % formatted('%03d-%02d-%08d', (y, t, n)),
+				file=f_err)
+			continue
 		situ_list = refined_situ_list(details['SITU_LIST'])
 		layaway = check_layaway(situ_list)
 		date_sep = lambda s: tuple(map(int, [s[:3], s[3: 5], s[5:]]))
