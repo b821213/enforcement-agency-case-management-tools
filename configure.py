@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 
 def write_back(settings, path):
@@ -76,6 +77,23 @@ def set_branch_code_name(session, settings):
 if __name__ == '__main__':
 	with open('configs_default.py', 'r', encoding='utf-8-sig') as f:
 		settings = eval(f.read())
+	try:
+		print ('正在確認是否已安裝 requests...')
+		import requests
+		print ('requests 已安裝。')
+	except ModuleNotFoundError:
+		print ('requests 未安裝或已損毀。重新安裝中...')
+		import subprocess
+		proc = subprocess.run(
+			['python', '-m', 'pip', 'install', 'requests', '--no-color', '--no-cache-dir'],
+			stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		results = proc.stdout.decode() + proc.stderr.decode()
+		if 'Successfully installe' in results:
+			print ('安裝成功！')
+		else:
+			print ('安裝失敗。以下是相關訊息：')
+			print (results, end='')
+			sys.exit(0)
 	# Gets server IP address to login first
 	ip_checker = re.compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')
 	while True:
