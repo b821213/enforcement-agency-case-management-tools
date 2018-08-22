@@ -1,6 +1,7 @@
 from func_lib import login, get_case_stats, get_topay_summary
 from share_lib import (
 	read_input, ranged_case_list, print_for_merge, is_hi_case, is_li_case)
+from configs import default_dept
 from secret import username_default, password_default
 import sys
 
@@ -45,7 +46,7 @@ if __name__ == '__main__':
 			value_str = '%s' % uid
 		prev = done.get(uid)
 		if prev is None:
-			data = get_case_stats(session, uid=uid)
+			data = get_case_stats(session, uid=uid, dept=default_dept)
 			if hi_print is False:
 				data = [datum for datum in data if not is_hi_case(datum)]
 			if li_print is False:
