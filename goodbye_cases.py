@@ -42,13 +42,16 @@ def mask_checker(mask, constraint):
 	return True
 
 def get_possible_end_situ(session, exec_y, exec_t, exec_n):
-	# Returns None if the case has ended.
-	# Otherwise, returns a integer list of possible situations.
+	"""
+	The returned value is a tuple r = (<bool>, <list> or <str>).
+	If the there are any exceptions, r = (False, errmsg);
+	otherwise, r = (True, pos_situ_list).
+	"""
 	stats = get_case_stats(
 		session, exec_y=exec_y, exec_t=exec_t, exec_n1=exec_n,
 		noendbox=False)[0]
 	if stats['END_DATE'] != '':
-		return None
+		return False, '案件已報結/掛結'
 	uid = stats['DUTY_IDNO']
 	# to reduce the number of queries, undo-amount of cases without interest
 	# will be calculated directly.
@@ -64,8 +67,10 @@ def get_possible_end_situ(session, exec_y, exec_t, exec_n):
 	has_received = stats['RECEIVE_AMT'] > 0
 	has_returned = stats['RETURN_AMT'] > 0
 	has_uncounted = stats['RETURN_AMT_NO'] > 0
-	situ_list = refined_situ_list(
-		get_case_details(session, exec_y, exec_t, exec_n)['SITU_LIST'])
+	details = get_case_details(session, exec_y, exec_t, exec_n)
+	if details is None:
+		return False, '請確認閱讀權限'
+	situ_list = refined_situ_list(details['SITU_LIST'])
 	rejected = get_rejected(situ_list)
 	evidence = get_evidence(situ_list)
 	expired = get_expired(situ_list)
@@ -120,7 +125,7 @@ def get_possible_end_situ(session, exec_y, exec_t, exec_n):
 		results = set(
 			[situ for constraint, situ in mask_list
 			if mask_checker(mask, constraint) is True])
-	return list(results)
+	return True, list(results)
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3:
@@ -151,12 +156,13 @@ if __name__ == '__main__':
 	print ('開始報結...')
 	suc_count = 0
 	f_err = open(sys.argv[2], 'w', encoding='utf-8-sig')
-	for y, t, n, usr_situ, pos_situ in case_list:
+	for y, t, n, usr_situ, (success, value) in case_list:
 		situ = usr_situ
-		if pos_situ is None:
+		if success is False:
 			print_and_record ('%03d,%02d,%08d,%s' %
-					(y, t, n, '案件已報結/掛結'), file=f_err)
+				(y, t, n, value), file=f_err)
 			continue
+		pos_situ = value
 		if situ is None:
 			if len(pos_situ) == 0:
 				print_and_record ('%03d,%02d,%08d,%s' %
