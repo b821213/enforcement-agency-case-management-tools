@@ -1,5 +1,5 @@
 from func_lib import login, get_asset_page, get_case_details, get_case_stats
-from share_lib import read_input
+from share_lib import read_input, print_and_record
 from secret import username_default, password_default, password_asset
 from configs import asset_date_begin
 import sys
@@ -38,26 +38,31 @@ def refined_asset_list(session, uid):
 	return ret_list
 
 if __name__ == '__main__':
-	if len(sys.argv) != 3:
-		print ('使用說明: python [本程式名稱] [輸入檔名 (.csv)] [輸出檔名 (.csv)]')
+	if len(sys.argv) != 4:
+		print (
+			'使用說明: python [本程式名稱] [輸入檔名 (.csv)]'
+			'[輸出檔名 (.csv)] [紀錄檔名 (.csv)]')
 		sys.exit(0)
 	session = login(username_default, password_default)
 	flip_flop = 0
-	output = open(sys.argv[2], 'w', encoding='utf-8-sig')
+	f_out = open(sys.argv[2], 'w', encoding='utf-8-sig')
+	f_err = open(sys.argv[3], 'w', encoding='utf-8-sig')
 	case_list = read_input(sys.argv[1])
 	for index, uid_or_seqno in enumerate(case_list):
 		if type(uid_or_seqno) is tuple:
 			y, t, n = uid_or_seqno
 			uid = ''
-			print ('(%d/%d) %03d-%02d-%08d 查詢中' %
-				(index + 1, len(case_list), y, t, n))
+			input_str = '%03d-%02d-%08d' % (y, t, n)
 		else:
 			uid = uid_or_seqno
 			y, t, n = None, None, None
-			print ('(%d/%d) %s 查詢中' %
-				(index + 1, len(case_list), uid))
+			input_str = uid
+		print ('(%d/%d) %s 查詢中...' % (index + 1, len(case_list), input_str))
 		details = get_case_details(
 			session, exec_y=y, exec_t=t, exec_n=n, uid=uid)
+		if details is None:
+			print_and_record('%s,請確認閱讀權限' % input_str, file=f_err)
+			continue
 		name = details['DUTY_NAME']
 		uid_list = details['DUTY_IDNO']
 		is_wholly_owned = details['IS_WHOLLY_OWNED']
@@ -80,7 +85,9 @@ if __name__ == '__main__':
 			to_print.append(','.join(map(str, item)))
 		for line in to_print:
 			if flip_flop == 0:
-				print (line + ',' * 4, file=output)
+				print (line + ',' * 4, file=f_out)
 			else:
-				print (',' * 4 + line, file=output)
+				print (',' * 4 + line, file=f_out)
 		flip_flop = 1 - flip_flop
+	f_out.close()
+	f_err.close()
