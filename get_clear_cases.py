@@ -58,4 +58,4 @@ if __name__ == '__main__':
 			print ('處理 %s 時遇到錯誤' % num_str)
 			print (e.__repr__())
 	with open(sys.argv[2], 'w') as f:
-		print_for_merge(ranged_case_list(to_print), f_out=f)
+		print_for_merge(ranged_case_list(session, to_print), f_out=f)

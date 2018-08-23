@@ -69,4 +69,4 @@ if __name__ == '__main__':
 			cases = cases_by_uid[uid]
 			print ('%s (%s) 未結案件數 %d 尚欠金額 %d' %
 				(cases[-1]['DUTY_NAME'], uid, n_cases, money), file=f)
-			print_for_merge(ranged_case_list(cases), f_out=f)
+			print_for_merge(ranged_case_list(session, cases), f_out=f)

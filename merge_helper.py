@@ -56,7 +56,7 @@ if __name__ == '__main__':
 			if topay_print is True:
 				title_str += ' 尚欠金額 %d' % get_topay_summary(session, uid=uid)
 			print (title_str, file=f_out)
-			rcl = ranged_case_list(data)
+			rcl = ranged_case_list(session, data)
 			if type(uid_or_seqno) is tuple:
 				# Removes the input case(s)
 				rcl = [datum for datum in rcl

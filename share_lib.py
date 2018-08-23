@@ -31,22 +31,38 @@ def is_hi_case(case):
 def is_li_case(case):
 	return case['SEND_ORG_ID'] == '107001'
 
-def ranged_case_list(case_list):
-	# Input: type(get_case_stats(...))
-	cur_last = (-1, -1, -1)
-	cur_left = (-1, -1, -1)
+def ranged_case_list(session, case_list):
+	"""
+	Input: type(get_case_stats(...))
+	Output: a list of (y, t, n1, n2, note1, note2)
+	If note1 == '*': it is health/labor insurance.
+	If note2 == '#': it can be ended, i.e. to-pay amount is zero.
+	"""
+	# A case is described as (y, t, n, is_hi, is_li).
+	cur_last = (-1, -1, -1, False, False)
+	cur_left = (-1, -1, -1, False, False)
+	all_clear = True
 	ret_list = []
 	for case in case_list:
 		y = int(case['EXEC_YEAR'])
 		t = int(case['EXEC_CASE'])
 		n = int(case['EXEC_SEQNO'])
-		if (y != cur_last[0] or t != cur_last[1] or n != cur_last[2] + 1):
-			ret_list.append((*cur_left, cur_last[2], cur_last[-1]))
-			cur_left = (y, t, n)
-		cur_last = (
-			y, t, n,
-			'*' if (is_hi_case(case) or is_li_case(case)) else '')
-	ret_list.append((*cur_left, cur_last[2], cur_last[-1]))
+		is_hi = is_hi_case(case)
+		is_li = is_li_case(case)
+		is_clear = get_topay_single(session, case) == 0
+		if (y != cur_last[0] or t != cur_last[1] or n != cur_last[2] + 1 or
+			is_hi != cur_last[3] or is_li != cur_last[4]):
+			note1 = '#' if all_clear is True else ''
+			note2 = '*' if any(cur_last[-2:]) is True else ''
+			ret_list.append((*cur_left[:3], cur_last[2], note1, note2))
+			all_clear = True
+			cur_left = (y, t, n, is_hi, is_li)
+		if is_clear is False:
+			all_clear = False
+		cur_last = (y, t, n, is_hi, is_li)
+	note1 = '#' if all_clear is True else ''
+	note2 = '*' if any(cur_last[-2:]) is True else ''
+	ret_list.append((*cur_left[:3], cur_last[2], note1, note2))
 	return ret_list[1:]
 
 def print_for_merge(ranged_cl, f_out=sys.stdout):
@@ -54,10 +70,10 @@ def print_for_merge(ranged_cl, f_out=sys.stdout):
 	to_print = []
 	for ranged_n in data:
 		if ranged_n[2] == ranged_n[3]:
-			to_print.append('%03d-%02d-%06d%7s%s' %
-				(*ranged_n[:3], '', ranged_n[-1]))
+			to_print.append('%03d-%02d-%06d%7s%1s%1s' %
+				(*ranged_n[:3], '', *ranged_n[-2:]))
 		else:
-			to_print.append('%03d-%02d-%06d~%06d%s' % ranged_n)
+			to_print.append('%03d-%02d-%06d~%06d%1s%1s' % ranged_n)
 	to_print_in_row = []
 	for i in range(0, len(to_print), 5):
 		to_print_in_row.append(
