@@ -59,8 +59,8 @@ if __name__ == '__main__':
 	with open(sys.argv[1], 'w', encoding='utf-8-sig') as f:
 		print (','.join([
 			'檔號', '分案年分 (98前用)', '檔號年分', '類別', '流水號',
-			'分類號 (99後用)', '執行案號', '股別', '歸檔日期', '應銷毀日期',
-			'年限', '檔卷狀態']), file=f)
+			'分類號 (99後用)', '執行案號', '義務人', '股別', '歸檔日期',
+			'應銷毀日期', '年限', '檔卷狀態']), file=f)
 	for index, end_file_no in enumerate(end_file_no_set):
 		print ('正在查詢檔號 %s... (%d/%d)' %
 			(end_file_no, index + 1, len(end_file_no_set)), end='\r')
@@ -98,6 +98,7 @@ if __name__ == '__main__':
 						data['END_FILE_SERIAL_NUM'],
 						data['END_CODE'],
 						result['EXEC_NO'],
+						result['DUTY_NAME'],
 						result['DEPT_NO'],
 						result['END_FILE_DATE'],
 						result['SDESTORYDATE'],

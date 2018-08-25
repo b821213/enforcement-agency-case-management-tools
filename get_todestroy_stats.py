@@ -28,10 +28,9 @@ if __name__ == '__main__':
 			else:
 				s = line.split(',')
 				end_code = s[5]
-				dept = s[7]
-				todestroy_date = s[9]
-				# s[4] is end_code
-				if s[9] > deadline:
+				dept = s[8]
+				todestroy_date = s[10]
+				if todestroy_date > deadline:
 					continue
 				key = (end_code, dept)
 				stats[key] = stats.setdefault(key, 0) + 1
