@@ -98,7 +98,7 @@ if __name__ == '__main__':
 						data['END_FILE_SERIAL_NUM'],
 						data['END_CODE'],
 						result['EXEC_NO'],
-						result['DUTY_NAME'],
+						result['DUTY_NAME'].replace(',', '、'),
 						result['DEPT_NO'],
 						result['END_FILE_DATE'],
 						result['SDESTORYDATE'],
