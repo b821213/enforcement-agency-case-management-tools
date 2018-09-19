@@ -279,10 +279,10 @@ def get_ended_case_stats(
 		'model[VOC_SEQ_NO_S1]': formatted('%08d', b98_exec_n1),
 		'model[VOC_SEQ_NO_E1]': formatted('%08d', b98_exec_n2),
 		'model[FILE_KIND]': formatted('%08d', a98_end_code),
-		'model[VOC_CASE_TYPE2]': formatted('%02d', a98_exec_t),
-		'model[VOC_SEQ_YEAR2]': formatted('%03d', a98_ended_y),
-		'model[VOC_SEQ_NO_S2]': formatted('%07d', a98_exec_n1),
-		'model[VOC_SEQ_NO_E2]': formatted('%07d', a98_exec_n2),
+		'model[VOC_CASE_TYPE2]': formatted('%02d', a98_exec_t),#+
+		'model[VOC_SEQ_YEAR2]': formatted('%03d', a98_ended_y),#+
+		'model[VOC_SEQ_NO_S2]': formatted('%07d', a98_exec_n1),#+
+		'model[VOC_SEQ_NO_E2]': formatted('%07d', a98_exec_n2),#+
 		'model[VOC_TYPE]': voc_type,
 		'model[END_FILE_DATE_S]': formatted('%03d%02d%02d', in_date_s),
 		'model[END_FILE_DATE_E]': formatted('%03d%02d%02d', in_date_e),
@@ -568,6 +568,40 @@ def download_payment_list(
 	with open(file_path, 'wb') as f:
 		f.write(response.content)
 	return True
+
+def get_case_borrowed(session, date_start, date_end):
+	"""
+	get cases borrowed within date_start and date_end with DUTY_NAME
+	"""
+
+	data = {
+			'model[VOC_TYPE_SNAME]': configs.branch_code_name,
+			'model[VOC_TYPE]': 0,
+			'model[QRY_TYPE]': 0,
+			'model[OUT_DATE_S]': date_start,
+			'model[OUT_DATE_E]': date_end,
+			'model[paginaiton][pageNo]': 1,
+			'model[paginaiton][pageSize]': configs.default_page_size
+			}
+	current_useless_attrs = [
+			'model[EXEC_YEAR]', 'model[EXEC_CASE]', 'model[EXEC_SEQNO]', 
+			'model[EXEC_SEQNO_S]', 'model[EXEC_SEQNO_E]', 'model[END_FILE_NO]', 
+			'model[EXEC_RECTYPE]', 'model[VOC_YEAR]', 'model[VOC_SEQ_YEAR1]', 
+			'model[VOC_CASE_TYPE1]', 'model[VOC_SEQ_NO_S1]', 'model[VOC_SEQ_NO_E1]', 
+			'model[VOC_SEQ_YEAR2]', 'model[VOC_CASE_TYPE2]', 'model[VOC_SEQ_NO_S2]', 
+			'model[VOC_SEQ_NO_E2]', 'model[FILE_KIND]', 'model[DUTY_IDNO]', 
+			'model[DUTY_NAME]', 'model[APPLY_DATE_S]', 'model[APPLY_DATE_E]', 
+			'model[RBACK_DATE_S]', 'model[RBACK_DATE_E]', 'model[SBACK_DATE]', 
+			'model[DELAY_DATE]', 'model[DELAY_NUM]', 'model[DELAY_BACK_DATE]', 
+			'model[LOANMANNO]', 'model[LOANMANNAME]', 'model[LOANUNIT]', 
+			'model[DEPT_NO]', 'model[USER_NO]', 'model[paginaiton][pageSize]', 
+			'model[paginaiton][totalCount]'
+			]
+	for attr in current_useless_attrs:
+		data[attr] = ''
+	
+	response = session.post(urls.url_case_borrowed, data=data)
+	return eval(response.content)['gridDatas']
 
 if __name__ == '__main__':
 	"""Preserved for unit-test only."""
