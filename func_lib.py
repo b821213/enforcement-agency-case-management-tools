@@ -1,4 +1,4 @@
-import requests
+﻿import requests
 import sys
 import urls
 import configs
@@ -279,10 +279,10 @@ def get_ended_case_stats(
 		'model[VOC_SEQ_NO_S1]': formatted('%08d', b98_exec_n1),
 		'model[VOC_SEQ_NO_E1]': formatted('%08d', b98_exec_n2),
 		'model[FILE_KIND]': formatted('%08d', a98_end_code),
-		'model[VOC_CASE_TYPE2]': formatted('%02d', a98_exec_t),#+
-		'model[VOC_SEQ_YEAR2]': formatted('%03d', a98_ended_y),#+
-		'model[VOC_SEQ_NO_S2]': formatted('%07d', a98_exec_n1),#+
-		'model[VOC_SEQ_NO_E2]': formatted('%07d', a98_exec_n2),#+
+		'model[VOC_CASE_TYPE2]': formatted('%02d', a98_exec_t),
+		'model[VOC_SEQ_YEAR2]': formatted('%03d', a98_ended_y),
+		'model[VOC_SEQ_NO_S2]': formatted('%07d', a98_exec_n1),
+		'model[VOC_SEQ_NO_E2]': formatted('%07d', a98_exec_n2),
 		'model[VOC_TYPE]': voc_type,
 		'model[END_FILE_DATE_S]': formatted('%03d%02d%02d', in_date_s),
 		'model[END_FILE_DATE_E]': formatted('%03d%02d%02d', in_date_e),
